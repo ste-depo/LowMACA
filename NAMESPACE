@@ -1,0 +1,35 @@
+import(
+    LowMACAAnnotation,
+    methods,
+    cgdsr,
+    parallel,
+    Biostrings,
+    RColorBrewer,
+    motifStack
+)
+importFrom(stringr, str_extract)
+importFrom(reshape2, melt)
+importFrom(data.table, rbindlist)
+exportPattern("^[[:alpha:]]+")
+exportMethods(
+    "alignSequences",
+    "bpAll",
+    "entropy",
+    "getMutations",
+    "mapMutations",
+    "nullProfile",
+    "parallelize",
+    "parallelize<-",
+    "lmAlignment",
+    "lmEntropy",
+    "lmMutations",
+    "lmParams",
+    "lmParams<-",
+    "lmPlot",
+    "protter",
+    "setup",
+    "show" 
+)
+exportClasses(
+    "LowMACA" 
+)

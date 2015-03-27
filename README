@@ -1,0 +1,17 @@
+LowMACA relies on three external resources to work properly.
+	-	Clustal Omega version 1.2.x, our trusted aligner (http://www.clustal.org/omega/)
+	-	Ghostscript, a postscript interpreter needed to draw logo plots (http://www.ghostscript.com/)
+	-	Protter, a tool for visualization of proteoforms and annotation of predicted sequences (http://wlab.ethz.ch/protter/start/)
+Clustal Omega is a fast aligner that you can download from the link above. Be sure to have the clustalo within your PATH. For Linux and MacOSX users don't forget to run chmod u+x clustalo.
+If you don't want to install a local clustalo, you can use the clustal omega web service, but you will need perl with the modules XML::Simple and LWP.
+
+Ghostscript is an interpreter of postscript language and a pdf reader that is used by the R library grImport.
+	1.	For Linux users, simply download the program from http://ghostscript.com/download/gsdnld.html and compile it
+	2.	For MacOS users there is a dmg installer at http://pages.uoregon.edu/koch/
+	3.	For Windows users, download the program from http://ghostscript.com/download/gsdnld.html and remember to run the command below at every new session of R or put the command in your .Renviron file
+# Needed only on Windows - run once per R session
+# Adjust the path to match your installation of Ghostscript
+> Sys.setenv(R_GSCMD = '"C:/Program Files/gs/gs9.05/bin/gswin32c.exe"') 
+This command will set an R variable to use Ghostscript in the right way.
+
+Protter is a cool predictor and visualizer of protein sequence secondary structures. It's a web-based tool and doesn't require any special setting except from a internet connection.

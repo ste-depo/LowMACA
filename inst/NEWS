@@ -1,0 +1,25 @@
+additional functions:
+0.99.2
+- modified 'lfm' method in order to accept different thresholds of p value or q value and conservation score
+- removed the output folder:
+ -> now all plots can be evaluated on the graphical device 
+ -> clustalOmega output file is saved only if a path is provided either in 'alignSequences' method or 'setup' method
+- in 'lmPlot' if the mode is 'gene' and only one sequence is analyzed, domains are represented within the plot and no logo plot and trident score are visualized
+- the method 'paths' has been removed and all the options are now accessible through 'lmParams' method
+0.99.3
+- alignSequences can now run in web mode. No clustalo is necessary but the limit is set to 2000 sequences and a email address is required. In addition, perl must be installed in the system
+- the newLowMACA constructor is now able to check all possible gene symbols, even if they are not protein coding genes or if they are not mapped in LowMACAAnnotation package
+0.99.4
+- custom perl command was added to the methods setup and alignsequences
+bug fixes:
+0.99.3
+- add a conversion from U (selenocystein) to A in amino acid sequences while creating the LowMACA object ('newLowMACA' function) in order to fix a problem with .Trident_Score function
+- modified check validity function in order to accept 'auto' in the bandwidth
+- 'protter' method is now compatible with Windows OS
+- a check was added in newLowMACA constructor to prevent more than one pfam ID entry by the user
+0.99.4
+- onLoad check added for:
+	-> if "clustalo" is not in the PATH, a warning is raised
+	-> if clustalo version is not 1.2.x, a warning is raised
+	-> if XML:Simple and LWP modules for perl are not installed, a warning is raised
+- check for exit status of clustalo system call added
