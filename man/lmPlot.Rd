@@ -5,13 +5,19 @@ Draw a comprehensive LowMACA plot
 }
 \description{
 LowMACA comprehensive plot is a four layers 
-plot the summarize the entire LowMACA output
+plot that summarize the entire LowMACA output
 }
 \usage{
-lmPlot(object)
+lmPlot(object , conservation=NULL, splitLen=NULL)
 }
 \arguments{
 \item{object}{ a LowMACA class object}
+\item{conservation}{ a numeric value in the range of 0-1 that defines 
+				the threshold of trident conservation score to include the specified position.
+				The default value is inherited from the slot entropy, whose default is 0.1}
+\item{splitLen}{An integer, defines after how many amino acids the plot should be split
+				By default this parameter is set to NULL, that mean that the
+				plot is not split.}
 }
 \details{
 The method returns a plot, which is divided into four layers. 

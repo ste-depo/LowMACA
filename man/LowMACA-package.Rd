@@ -6,22 +6,26 @@
 LowMACA : Low frequency Mutations Analysis via Consensus Alignment
 }
 \description{
-The LowMACA package is a simple suite of tools to investigate and analyze the mutation profile of several proteins or pfam domains via consensus alignment. You can conduct an hypothesis driven exploratory analysis using our package simply providing a set of genes or pfam domains of your interest.
+The LowMACA package is a simple suite of tools to investigate and analyze 
+the mutation profile of several proteins or pfam domains via consensus alignment. 
+You can conduct an hypothesis driven exploratory analysis using our package 
+simply providing a set of genes or pfam domains of your interest.
 }
 \details{
 \tabular{ll}{
 Package: \tab LowMACA\cr
 Type: \tab Package\cr
-Version: \tab 0.99.3\cr
-Date: \tab 2015-02-20\cr
+Version: \tab 0.99.5\cr
+Date: \tab 2015-04-29\cr
 License: \tab GPL-3\cr
 Depends: \tab methods\cr
 }
-LowMACA allows to collect, align and visualize mutations from different proteins or pfam domains.
+LowMACA allows to collect, align, analyze and visualize mutations from different proteins or pfam domains.
 \enumerate{
 \item \var{newLowMACA:} construct a LowMACA object with your proteins or pfam
 \item \var{setup:} align sequences, get mutations and map mutations on the consensus sequence
 \item \var{entropy:} calculate entropy score and pvalues for every position
+\item \var{lfm:} retrieve significant position
 \item \var{lmPlot:} visualize mutations on the consensus sequence, conservation and significant clusters
 }
 }
@@ -37,7 +41,7 @@ Genome Medicine 2014 6:44
 }
 \keyword{ package }
 \seealso{
-\href{https://cgsb.genomics.iit.it/wiki/projects/LowMACA}{LowMACA website}
+\href{https://cgsb.genomics.iit.it/wiki/projects/LowMACA}{LowMACA project website}
 }
 \examples{
 #Create an object of class LowMACA for RAS domain family

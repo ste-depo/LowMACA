@@ -10,7 +10,7 @@ and a test for every position in the consensus comparing the number
 of observed mutations against a weigthed random uniform distribution.
 }
 \usage{
-entropy(object, bw = NULL)
+entropy(object, bw = NULL , conservation=0.1)
 }
 \arguments{
 \item{object}{ an object of class LowMACA}
@@ -19,13 +19,21 @@ entropy(object, bw = NULL)
 			0 will not launch density (every position is not aggregated to the surrounded ones) , 
 			'auto' will let the simulation decide according to the Silverman's rule of thumb 
 			and every other number is a user defined bandwidth passed to the function \code{density}.}
+\item{conservation}{ a number between 0 and 1. Represents the minimum level of conservation to test a mutation}
 }
 \value{
 \code{entropy} returns an object of class LowMACA 
-updating the slot \code{entropy} and the slot \code{alignment} 
-in the \code{df} data.frame by adding 6 new columns
-\describe{
-alignment slot update:
+updating the slot \code{entropy} and the slot \code{alignment}.
+The slot \code{entropy} becomes a list of 6 elements:
+\itemize{
+	\item{bw}{ the bandwidth used to calculate the null profile}
+	\item{uniform}{ a function to calculate the null profile}  
+	\item{absval}{ absolute value of entrpy calculated}
+	\item{log10pval}{ p value of the entropy test in log 10}
+	\item{pvalue}{ p value of the entropy test}
+	\item{conservation_thr}{ the minimum conservation level accepted}
+}
+The slot \code{alignment} is updated in the \code{df} element by adding 6 new columns
 \itemize{
 	\item{mean}{ a numeric vector representing the mean value of the empirical 
 		uniform function at every position in the consensus}
@@ -40,7 +48,6 @@ alignment slot update:
 			found at every position against the weigthed random uniform distribution of mutations}
 	\item{qvalue}{ a numeric vector representing the corrected pvalues using FDR method. 
 		Only positions with a conservation score >= 10\% are considered}
-}
 }
 }
 \details{

@@ -7,7 +7,8 @@ Align sequences via clustalo
 Align sequences for an object of class LowMACA
 }
 \usage{
-alignSequences(object, clustalo_filename=NULL , mail=NULL , perlCommand="perl")
+alignSequences(object, clustalo_filename=NULL , mail=NULL , 
+	perlCommand="perl", use_hmm=FALSE, datum=FALSE)
 }
 \arguments{
   \item{object}{ an object of class LowMACA containing at least 2 sequences.}
@@ -18,6 +19,17 @@ alignSequences(object, clustalo_filename=NULL , mail=NULL , perlCommand="perl")
   				where error report should be sent in web mode}
   \item{perlCommand}{ a character string containing the path to Perl executable. 
 				if missing, "perl" will be used as default}
+  \item{use_hmm}{When analysing Pfam sequences, it is possible to
+				use the Hidden Markov Model (HMM) of the 
+				specific Pfam to align the sequences.
+				Default is FALSE.}
+  \item{datum}{When analysing Pfam sequences, use all the genes
+				that belong to the Pfam to generate the
+				alignment. This creates a unique mapping between
+				individual residues and consensus sequence, 
+				disregarding the set of sequences that are 
+				selected for the analysis.
+				Default is FALSE.}
 }
 \details{
 This method launches a system call to clustalo aligner
@@ -58,4 +70,8 @@ lm <- newLowMACA(pfam="PF00071" , genes=c("KRAS" , "NRAS" , "HRAS"))
 lm <- alignSequences(lm)
 #Web service clustalomega aligner
 lm <- alignSequences(lm , mail="lowmaca@gmail.com")
+#Use HMM to align
+lm <- alignSequences(lm , use_hmm=TRUE)
+#Use "datum"
+lm <- alignSequences(lm , datum=TRUE)
 }

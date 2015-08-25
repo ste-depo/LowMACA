@@ -28,6 +28,17 @@ lmParams(object) <- value
                               decide according to the Silverman's rule of thumb the correct bandwidth.
                               Default is 0.
     \item \code{clustal_cmd} path to clustalo executable
+    \item \code{use_hmm} When analysing Pfam sequences, it is possible to
+                              use the Hidden Markov Model (HMM) of the 
+                              specific Pfam to align the sequences.
+                              Default is FALSE.
+    \item \code{datum} When analysing Pfam sequences, use all the genes
+                              that belong to the Pfam to generate the
+                              alignment. This creates a unique mapping between
+                              individual residues and consensus sequence, 
+                              disregarding the set of sequences that are 
+                              selected for the analysis.
+                              Default is FALSE.
       }
     }
 }
@@ -64,7 +75,9 @@ lmParams(lm) <- list(mutation_type='all'
                     , tumor_type=c('skcm','brca') 
                     , min_mutation_number=0 
                     , density_bw=0
-                    , clustal_cmd='clustalo')
+                    , clustal_cmd='clustalo'
+                    , use_hmm=FALSE
+                    , datum=FALSE)
 #Change just one parameter
 lmParams(lm)[['tumor_type']] <- 'prad'
 }

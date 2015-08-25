@@ -6,13 +6,20 @@ Draw a mutational profile plot
 \description{
 \code{nullProfile} is a method for objects of class LowMACA 
 that draw a barplot highlighting the significant clusters 
-of mutations found by LowMACA
+of mutations found by LowMACA statistics
 }
 \usage{
-nullProfile(object)
+nullProfile(object , conservation=NULL, windowlimits=NULL)
 }
 \arguments{
 \item{object}{ an object of class LowMACA}
+\item{conservation}{ a numeric value in the range of 0-1 that defines 
+				the threshold of trident conservation score to include the specified position.
+				The default value is inherited from the slot entropy, whose default is 0.1}
+\item{windowlimits}{ A vector indicating which amino acids residues will be 
+				plotted. The vector refers to the positions in the global
+				alignment. By default this parameter is set to NULL, 
+				that means that all the amino acids will be displayed. }
 }
 \details{
 This method draw the second layer of the \code{lmPlot} of LowMACA. 

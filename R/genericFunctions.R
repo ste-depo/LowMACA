@@ -24,27 +24,7 @@
   if (verbose) cat("Using perl at", perl, "\n")
   perl
 }
-#.findPerlDoc <- function(perldoc, verbose = "FALSE")
-#{
-#  errorMsg <- "perldoc executable not found. Use perldoc= argument to specify the correct path." 
-#  if (missing(perldoc))
-#    {
-#      perldoc = "perldoc"
-#    }
-#  perldoc = Sys.which(perldoc)
-#  if (perldoc=="" || perldoc=="perldoc")
-#    stop(errorMsg)
-#  if (.Platform$OS == "windows") {
-#    if (length(grep("rtools", tolower(perldoc))) > 0) {
-#      perldoc.ftype <- shell("ftype perldoc", intern = TRUE)
-#      if (length(grep("^perldoc=", perldoc.ftype)) > 0) {
-#        perldoc <- sub('^perldoc="([^"]*)".*', "\\1", perldoc.ftype)
-#      }
-#    }
-#      }
-#  if (verbose) cat("Using perldoc at", perldoc, "\n")
-#  perldoc
-#}
+
 .ClustalChecks <- function(ClustalCommand="clustalo") {
     #Check for clustalo in the PATH
     message("Checking if clustalo is in the PATH...")
@@ -210,7 +190,8 @@ showTumorType <- function() {
     }
 }
 
-.Trident_Score <- function(origMAlign , cons_mat="BLOSUM62", param=c(1 , 0.5 , 2) ) {
+#.Trident_Score <- function(origMAlign , cons_mat="BLOSUM62", param=c(1 , 0.5 , 2) ) {
+.Trident_Score <- function(origMAlign , cons_mat="BLOSUM62", param=c(1 , 1 , 0) ) {
             m <- consensusMatrix(origMAlign)
             freq_mat <- pcm2pfm(m)
             aminos <- rownames(m)[rownames(m)!='-']
@@ -223,7 +204,7 @@ showTumorType <- function() {
             }
             ### force negative elements on the diagonal to be 0
             if(any(diag(myBLOSUM)<0)) {
-                message('There are some negative elements in the diagonal elements if consensus matrix')
+                message('There are some negative elements in the diagonal elements of consensus matrix')
                 print(diag(myBLOSUM)[diag(myBLOSUM)<0])
                 message('Forcing them to be zero')
                 diag(myBLOSUM)[diag(myBLOSUM)<0] <- 0
@@ -243,7 +224,9 @@ showTumorType <- function() {
             r <- sapply(1:ncol(freq_mat) , function(i) {
                 pos <- freq_mat[ aminos , i]
                 amin <- names(pos[pos!=0])
-                if(length(amin)==1) {
+                if( length(amin)==0 ) {
+                    return(1)
+                } else if( length(amin)==1 ) {
                     return(0)
                 } else {
                     myBLOSUM_cut <- myBLOSUM_valdar[ , amin]
@@ -266,7 +249,7 @@ showTumorType <- function() {
             return(result)
 }
 
-.clustalOAlign <- function(genesData, clustal_cmd, filename , mail , perlCommand)
+.clustalOAlign <- function(genesData, clustal_cmd, filename , mail , perlCommand, use_hmm, datum)
 {
     # # get the protein sequences corresponding to the selected genes
     # # from the uniprot_file
@@ -279,6 +262,17 @@ showTumorType <- function() {
         seq_name <- paste( ">", seq_names[i], sep='')
         seq <- as.character(genesData[i, 'AMINO_SEQ'])
         fasta <- c(fasta, seq_name, seq)
+    }
+    # download hmm file
+    if( use_hmm ) {
+        hmmFile <- tempfile()
+        # e.g. http://pfam.xfam.org/family/PF00071/hmm
+        pfam <- as.character(genesData$Pfam_ID[1])
+        WebQuery <- paste0('http://pfam.xfam.org/family/', pfam, '/hmm')
+        if(Sys.info()['sysname']=="Windows")
+            download.file(WebQuery, destfile=hmmFile , mode="wb")
+        else
+            download.file(WebQuery, destfile=hmmFile)
     }
 
     # write the fasta file on a temporary file
@@ -296,8 +290,14 @@ showTumorType <- function() {
                 #clustal omega pairwise distance matrix
             dist_mat <- tempfile()
             dist_cmd <- paste("--distmat-out" , dist_mat , sep="=")
-            exec <- paste(ClustalOmega, '--outfmt=clu' , '--percent-id' 
-                , dist_cmd , "--full --force" , '-i', fastafile, '>', clustalout_clu)
+            if( use_hmm ) {
+                exec <- paste(ClustalOmega, paste0('--hmm-in=', hmmFile), '--outfmt=clu' , '--percent-id' 
+                    , dist_cmd , "--full --force" , '-i', fastafile, '>', clustalout_clu)
+            }
+            else {
+                exec <- paste(ClustalOmega,'--outfmt=clu' , '--percent-id' 
+                    , dist_cmd , "--full --force" , '-i', fastafile, '>', clustalout_clu)                
+            }
             #Windows doesn't accept the redirection >, so we must use shell
             if( Sys.info()['sysname']=="Windows" ) {
                 exec <- gsub("\\\\" , "/" , exec)
@@ -305,11 +305,17 @@ showTumorType <- function() {
             } else {
                 cmdCheck <- system(exec , intern=TRUE)
             }
+            if( use_hmm ) unlink(hmmFile)
             #Check if system call to clustalo had 0 exit status
             failed <- !is.null(attr(cmdCheck, 'status')) && attr(cmdCheck, 'status') != 0
             if(failed)
                 stop(paste("Alignment with ClustalOmega had non 0 exit status:",cmdCheck , sep="\n"))
-            score <- .scoreMatrix(dist_mat , mail=mail)
+            if( !(use_hmm | datum) ) 
+            {
+                score <- .scoreMatrix(dist_mat , mail=mail)
+            } else {
+                score <- NA                
+            }
             aln <- .clustalMatrix(clustalout_clu)
             see_aln <- readAAMultipleAlignment(filepath = clustalout_clu
                 , format="clustal")
@@ -321,6 +327,7 @@ showTumorType <- function() {
             unlink(dist_mat)
             unlink(fastafile)
         } else {
+            if( use_hmm ) stop("You cannot evaluate HMM in web mode. Install a local clustalo")
             perl <- .findPerl(perl=perlCommand)
             package.dir <- system.file(package='LowMACA')
             script <- file.path(package.dir,'clustalo_lwp.pl')
@@ -438,6 +445,33 @@ showTumorType <- function() {
     return(list(ALIGNMENT=aln, SCORE=score, CLUSTAL=see_aln))
 }
 
+.filterMAlign <- function(alignment, genes, datum) {
+    ## ALIGNMENT element
+    alignment$ALIGNMENT <- droplevels(alignment$ALIGNMENT[alignment$ALIGNMENT$Gene_Symbol %in% genes, ])
+    ## SCORE element
+    if( !datum ) {
+        ix <- sort(unlist(lapply(genes, grep, x=rownames(alignment$SCORE$DIST_MAT))))
+        if( length(ix)>2 ) {
+            alignment$SCORE$DIST_MAT <- alignment$SCORE$DIST_MAT[ix,ix,drop=FALSE]
+            alignment$SCORE$SUMMARY_SCORE <- cbind(
+                MEAN_SIMILARITY=apply(alignment$SCORE$DIST_MAT, 1, mean, na.rm=TRUE)
+                , MEDIAN_SIMILARITY=apply(alignment$SCORE$DIST_MAT, 1, median, na.rm=TRUE)
+                , MAX_SIMILARITY=apply(alignment$SCORE$DIST_MAT, 1, max, na.rm=TRUE)
+                , MIN_SIMILARITY=apply(alignment$SCORE$DIST_MAT, 1, min, na.rm=TRUE)
+                )        
+        } else {
+            alignment$SCORE <- "It is not possible to calculate distance matrix with less than 3 sequences"
+        }        
+    }
+    ## CLUSTAL element
+    ix <- sort(unlist(lapply(genes, grep, x=alignment$CLUSTAL@unmasked@ranges@NAMES)))
+    alignment$CLUSTAL <- 
+        as(apply(as.matrix(alignment$CLUSTAL)[ix,,drop=FALSE],1,paste,collapse=''), "AAMultipleAlignment")
+    ## return the filtered alignment
+    return(alignment)
+
+}
+
 .clustalMatrix <- function(filename)
 {
     origMAlign <- readAAMultipleAlignment(filepath = filename , format="clustal")
@@ -501,7 +535,7 @@ showTumorType <- function() {
                             ,mutation_type=c("missense", "all", "truncating" , "silent") 
                             ,NoSilent=TRUE 
                             ,Exonic=TRUE
-                            ,tumor_type="all"
+                            ,tumor_type="all_tumors"
                             )
 {
     mycgds <- CGDS("http://www.cbioportal.org/public-portal/")
@@ -509,13 +543,11 @@ showTumorType <- function() {
     mutation_type <- mutation_type[1]
         # If I want just silent mutation, this overwrite NoSilent mode
     if(mutation_type=="silent") NoSilent=FALSE
-    if(tumor_type[1]=="all") {
+    if(tumor_type[1]=="all_tumors") {
         chosenTumors <- all_cancer_studies[,1]
     } else {
         chosenTumors <- all_cancer_studies[grepl( paste(tumor_type , collapse="|") , all_cancer_studies[,1] , ignore.case=TRUE) , 1]
     }
-        #Remove cell_lines and npc tumor that generate problems
-    #chosenTumors <- chosenTumors[ !(chosenTumors %in% c("cellline_nci60" , "cellline_ccle_broad" , "npc_nusingapore")) ]
     if(parallelize) {
         applyfun <- mclapply
         options('mc.cores'=detectCores())
@@ -583,7 +615,7 @@ showTumorType <- function() {
                 ,"Tumor_Type"
                 )
     mut <- mut[ , goodCols]
-        #Delete all the splice sites outside the coding region (reported as e1-2 or similar notations)
+    #Delete all the splice sites outside the coding region (reported as e1-2 or similar notations)
     mut <- mut[ !grepl("^e" , mut$amino_acid_change) , ]
     mut$letter <- substr(mut$amino_acid_change,1,1)
     mut$position <- as.numeric(as.character(str_extract(
@@ -601,6 +633,11 @@ showTumorType <- function() {
         if(class(mut[,i])=="factor")
             mut[,i] <- as.character(mut[,i])
     }
+    #Delete all non-SNVs mutation and all non-TCGA MutationType
+    mut <- mut[ !is.na(mut$Mutation_Type) , ]
+    bad_mut_types <- c("Fusion" , "COMPLEX_INDEL" , "vIII deletion" , "Splice_Site_SNP" , "Indel")
+    mut <- mut[ !(mut$Mutation_Type %in% bad_mut_types) , ]
+    mut <- mut[ !(mut$Amino_Acid_Change=="MUTATED") , ]
     if(NoSilent) {
         mut <- mut[ mut$Mutation_Type!="Silent" , ]
     }
@@ -658,12 +695,17 @@ showTumorType <- function() {
                             ,mutation_type=c("missense", "all", "truncating" , "silent") 
                             ,NoSilent=TRUE 
                             ,Exonic=TRUE
-                            ,tumor_type="all"
+                            ,tumor_type="all_tumors"
                             )
 {
     if( is.null(localData) ) stop('no local file provided')
     ## all mutatios from local data
     mut <- localData
+    #Delete all non-SNVs mutation and all non-TCGA MutationType
+    mut <- mut[ !is.na(mut$Mutation_Type) , ]
+    bad_mut_types <- c("Fusion" , "COMPLEX_INDEL" , "vIII deletion" , "Splice_Site_SNP" , "Indel")
+    mut <- mut[ !(mut$Mutation_Type %in% bad_mut_types) , ]
+    mut <- mut[ !(mut$Amino_Acid_Change=="MUTATED") , ]
     ## filter: genes
     chosenGenes <- myGenes$Gene_Symbol
     mut <- mut[mut$Gene_Symbol %in% chosenGenes, ]
@@ -699,7 +741,7 @@ showTumorType <- function() {
     mut <- mut[mut$Mutation_Type %in% chosenMutations, ]
     ## filter: tumor types
     chosenTumors <- unique(mut$Tumor_Type)
-    if( tumor_type[1]!="all" )
+    if( tumor_type[1]!="all_tumors" )
         chosenTumors <- chosenTumors[chosenTumors %in% tumor_type]
     mut <- mut[mut$Tumor_Type %in% chosenTumors, ]
     mut <- unique(mut)
@@ -811,11 +853,8 @@ showTumorType <- function() {
     } else applyfun <- lapply
     geneLen <- ncol(mat)
     if( is.null(weights) ) weights <- rep(1/geneLen , geneLen)
-    # minNMut <- min(apply(mat, 1, sum))
-    # maxNMut <- sum(mat)
     minNMut <- floor(sum(mat)/10)*10 #round to the upper ten
     maxNMut <- ceiling(sum(mat)/10)*10 #round to the upper ten
-    # nMutInt <- round(seq(from=minNMut,to=maxNMut, length.out=100))
     nMutInt <- unique(c(minNMut, maxNMut))
     if(length(nMutInt)==1) nMutInt <- c(nMutInt , nMutInt+1)
     outReal <- applyfun(nMutInt, function(i) 
@@ -902,5 +941,4 @@ showTumorType <- function() {
     return(data.frame(
         mean=mu, lTsh=lowerThreshold, uTsh=upperThreshold, profile=d$y, pvalue=pvals#, qvalue=qvals
         ))
-
 }

@@ -9,7 +9,7 @@ the original mutations that created the significant clusters
 calculated with \code{entropy} on the consensus
 }
 \usage{
-lfm(object , metric='qvalue', threshold=.05, conservation=0.1)
+lfm(object , metric='qvalue', threshold=.05, conservation=NULL)
 }
 \arguments{
 \item{object}{ a LowMACA class object}
@@ -17,16 +17,17 @@ lfm(object , metric='qvalue', threshold=.05, conservation=0.1)
 				'qvalue' to select significant positions. Default: 'qvalue'}
 \item{threshold}{ a numeric defining the threshold of significance for the defined metric. Default: 0.05}
 \item{conservation}{ a numeric value in the range of 0-1 that defines 
-				the threshold of trident conservation score to include the specified position. Default: 0.1}
+				the threshold of trident conservation score to include the specified position.
+				The default value is inherited from the slot entropy, whose default is 0.1}
 }
 \details{
-After the alignment, we loose every information about the original sequences used as input.
+After the alignment, we lose every information about the original sequences used as input.
 The consensus sequence is in fact an alignment that could not represent the reality of human proteins.
 \code{lfm} allows to go back on the original dataset and retrieve the proteins and the real positions
 of the mutations that we consider 'conserved'.
 }
 \value{
-A data.frame with 11 columns and \emph{n} rows corresponding to the mutations retrieved:
+A data.frame with 13 columns corresponding to the mutations retrieved:
 \enumerate{
 	\item{Gene_Symbol}{ gene symbols of the mutations}
 	\item{Amino_Acid_Position}{ amino acidic positions relative to original protein}
@@ -50,8 +51,9 @@ Stefano de Pretis , Giorgio Melloni
 \code{\link{entropy}}
 }
 \examples{
-#Load homeobox example and draw the plot
+#Load homeobox example and launch entropy method
 data(lmObj)
+lmObj <- entropy(lmObj)
 significant_muts <- lfm(lmObj)
 #Display original mutations that formed significant clusters (column Multiple_Aln_pos)
 head(significant_muts)

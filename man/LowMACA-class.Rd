@@ -1,5 +1,5 @@
 \name{LowMACA-class}
-\Rdversion{1.1}
+\Rdversion{0.99.5}
 \docType{class}
 \alias{LowMACA-class}
 \alias{alignSequences,LowMACA-method}
@@ -20,6 +20,8 @@
 \alias{protter,LowMACA-method}
 \alias{setup,LowMACA-method}
 \alias{show,LowMACA-method}
+\alias{lfmSingleSequence,LowMACA-method}
+\alias{lmPlotSingleSequence,LowMACA-method}
 \title{Class \code{"LowMACA"}}
 \description{
 LowMACA class object describing the properties of mutations mapped on pfam domains or proteins
@@ -102,6 +104,8 @@ newLowMACA(genes=character_vector , pfam=character_vector)
     \item{protter}{\code{protter(object = "LowMACA")}: ... }
     \item{setup}{\code{setup(object = "LowMACA")}: ... }
     \item{show}{\code{show(object = "LowMACA")}: ... }
+    \item{lfmSingleSequence}{\code{lfmSingleSequence(object = "LowMACA")}: ... }
+    \item{lmPlotSingleSequence}{\code{lmPlotSingleSequence(object = "LowMACA")}: ... }
 	 }
 }
 \references{

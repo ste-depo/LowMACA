@@ -44,5 +44,5 @@ parallelize(lm)
 #Change all parameters
 parallelize(lm) <- list(getMutations=TRUE , makeAlignment=FALSE)
 #Change just one parameter
-parallelize(lm)[['getMUtations']] <- TRUE
+parallelize(lm)[['getMutations']] <- TRUE
 }

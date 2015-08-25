@@ -7,7 +7,7 @@ Draw a Protter plot
 This is a wrapper around Protter web service for LowMACA class objects that draw a protter style plot.
 }
 \usage{
-protter(object, filename = "protter.png", threshold = 0.05)
+protter(object, filename = "protter.png", threshold = 0.05 , conservation=NULL)
 }
 \arguments{
 \item{object}{ an object of class LowMACA}
@@ -15,6 +15,9 @@ protter(object, filename = "protter.png", threshold = 0.05)
  				where protter plot will be stored. Default "protter.png"}
 \item{threshold}{ a numeric value in the interval (0 , 1] 
 				that identifies the significant mutations. Default 0.05}
+\item{conservation}{ a numeric value in the range of 0-1 that defines 
+				the threshold of trident conservation score to include the specified position.
+				The default value is inherited from the slot entropy, whose default is 0.1}
 }
 \details{
 Using the information in the slot \code{alignment}, a request is send to Protter server. 

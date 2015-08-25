@@ -9,7 +9,7 @@ and \code{mapMutations} in order to execute all these methods at once.
 }
 \usage{
 setup(object, repos = NULL, clustalo_filename=NULL 
-	, mail=NULL , perlCommand="perl")
+	, mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE)
 }
 \arguments{
 \item{object}{ an object of class LowMACA}
@@ -19,9 +19,21 @@ setup(object, repos = NULL, clustalo_filename=NULL
 			clustal omega alignment file will be stored. In case it's NULL
 			no file will be written. Default=NULL}
 \item{mail}{ a character string indicating the email address 
-  				where error report should be sent in web mode}
+  				where error report should be sent in web mode. Default is NULL, 
+  				to use a local clustalo installation}
 \item{perlCommand}{ a character string containing the path to Perl executable. 
 				if missing, "perl" will be used as default}
+\item{use_hmm}{When analysing Pfam sequences, it is possible to
+				use the Hidden Markov Model (HMM) of the 
+				specific Pfam to align the sequences.
+				Default is FALSE.}
+\item{datum}{When analysing Pfam sequences, use all the genes
+				that belong to the Pfam to generate the
+				alignment. This creates a unique mapping between
+				individual residues and consensus sequence, 
+				disregarding the set of sequences that are 
+				selected for the analysis.
+				Default is FALSE.}
 }
 \details{
 If mail is not NULL, a local installation of clustal omega is no longer 
@@ -54,4 +66,8 @@ lmParams(lm)$tumor_type <- c("skcm" , "brca" , "coadread")
 lm <- setup(lm)
 #Same as above, but using web service
 lm <- setup(lm , mail="lowmaca@gmail.com")
+#Use HMM to align
+lm <- setup(lm , use_hmm=TRUE)
+#Use "datum"
+lm <- setup(lm , datum=TRUE)
 }
