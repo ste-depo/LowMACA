@@ -5,6 +5,10 @@ ADDITIONAL FUNCTIONS:
 - New allPfamAnalysis function
 - New checks for consistency of LowMACA object when methods entropy and mapMutations are called
 - conservation is now a parameter of lmPlot, nullProfile and entropy methods too
+- added the "datum" alignment option: when both a Pfam and genes are selected, LowMACA use the whole set of Pfam sequences to drive the alignment and then filters out only the selected sequences. In this way, every sequence in the Pfam mode will have the same position in the multiple alignemnt, disregarding the subset of sequences selected for the analysis.
+- in Pfam mode, added the possibility to perform the alignment using HMM models downloaded from Pfam website (for example http://pfam.xfam.org/family/PF00001/hmm, for the HMM that is used to build the PF00001).
+- lmPlot can split the consensuc sequence into smaller fragments to improve the readability of the plot
+- the LowMACA vignette includes a section for "allPfamAnalysis" functionality 
 BUG FIXES:
 - Since "all" represents also the symbol of a kind of leukemia, the tumor type "all" was replaced by "all_tumors"
 - Improvements to the vignette (inclusion of protter plot)
@@ -13,7 +17,3 @@ BUG FIXES:
 - Some non-TCGA standard mutation types are now deleted from getMutations function ("Fusion" , "COMPLEX_INDEL" , "vIII deletion" , "Splice_Site_SNP" , "Indel")
 - NAMESPACE was improved removing the import of the whole motifStack package and Biostrings package
 - motifStack generic "plot" method was replaced with plotMotifLogo function to prevent conflicts with devtools load_all
-- added the "datum" alignment option: when both a Pfam and genes are selected, LowMACA use the whole set of Pfam sequences to drive the alignment and then filters out only the selected sequences. In this way, every sequence in the Pfam mode will have the same position in the multiple alignemnt, disregarding the subset of sequences selected for the analysis.
-- in Pfam mode, added the possibility to perform the alignment using HMM models downloaded from Pfam website (for example http://pfam.xfam.org/family/PF00001/hmm, for the HMM that is used to build the PF00001).
-- lmPlot can split the consensuc sequence into smaller fragments to improve the readability of the plot
-- the LowMACA vignette includes a section for "allPfamAnalysis" functionality 
