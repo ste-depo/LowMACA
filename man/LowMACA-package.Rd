@@ -11,15 +11,6 @@ the mutation profile of several proteins or pfam domains via consensus alignment
 You can conduct an hypothesis driven exploratory analysis using our package 
 simply providing a set of genes or pfam domains of your interest.
 }
-\details{
-\tabular{ll}{
-Package: \tab LowMACA\cr
-Type: \tab Package\cr
-Version: \tab 0.99.5\cr
-Date: \tab 2015-04-29\cr
-License: \tab GPL-3\cr
-Depends: \tab methods\cr
-}
 LowMACA allows to collect, align, analyze and visualize mutations from different proteins or pfam domains.
 \enumerate{
 \item \var{newLowMACA:} construct a LowMACA object with your proteins or pfam
