@@ -628,7 +628,7 @@ setMethod('nullProfile', 'LowMACA', function(object, conservation=NULL , windowl
 	    	object@alignment$df$lTsh,
 	    	object@alignment$df$uTsh,
 	    	object@alignment$df$profile*1.1
-	    	))
+	    	) , na.rm=TRUE)
 
 	    # red bars of the resudues over the threshold
 
