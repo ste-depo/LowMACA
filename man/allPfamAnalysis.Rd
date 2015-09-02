@@ -13,7 +13,7 @@ allPfamAnalysis(repos,allLowMACAObjects=NULL,parallel=FALSE
 	,mutation_type=c("missense", "all", "truncating" , "silent")
 	, NoSilent=TRUE , mail=NULL
 	, perlCommand="perl",verbose=FALSE , conservation=0.1
-	, use_hmm=FALSE, datum=FALSE)
+	, use_hmm=FALSE, datum=FALSE , clustal_cmd="clustalo")
 }
 \arguments{
 \item{repos}{ either a data.frame or a filename containing the data to analyze}
@@ -45,7 +45,7 @@ allPfamAnalysis(repos,allLowMACAObjects=NULL,parallel=FALSE
 			disregarding the set of sequences that are 
 			selected for the analysis.
 			Default is FALSE.}
-
+\item{clustal_cmd}{system call to the clustalomega aligner}
 }
 \details{
 This function takes a data.frame or a tab delimited text file in LowMACA format (see \code{\link{LowMACA_AML}})
@@ -110,7 +110,7 @@ if(Sys.info()[['sysname']] == 'Windows'){
 	#For this example, parallelization in Windows is slower than serialization
 	significant_muts <- allPfamAnalysis(repos=myData , parallel=FALSE)
 }else{
-	significant_muts <- allPfamAnalysis(repos=myData , parallel=TRUE)
+	significant_muts <- allPfamAnalysis(repos=myData , parallel=2)
 }
 #Show the result of alignment based analysis
 head(significant_muts$AlignedSequence)
