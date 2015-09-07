@@ -11,7 +11,7 @@ on every gene or domain inside a LowMACA object without aligning the sequences
 }
 \usage{
 lfmSingleSequence(object , metric='qvalue', threshold=.05 
-	, conservation=0.1 , parallel=FALSE , mail=NULL , perlCommand="perl"
+	, conservation=0.1 , BPPARAM=bpparam("SerialParam") , mail=NULL , perlCommand="perl"
 	,verbose=FALSE)
 }
 \arguments{
@@ -23,9 +23,9 @@ lfmSingleSequence(object , metric='qvalue', threshold=.05
 \item{conservation}{ a numeric value in the range of 0-1 that defines 
 				the threshold of trident conservation score 
 				to include the specified position. Default: 0.1}
-\item{parallel}{ if TRUE, launch internal method \code{lfm} in parallel 
-				mode with maximum number of available cores. If it is an integer, it sets the number of threads. 
-				Default: FALSE}
+\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam}} specifiying parameters related to
+  the parallel execution of some of the tasks and calculations within this function.
+  See function \code{\link[BiocParallel]{bpparam}()} from the \code{BiocParallel} package.}
 \item{mail}{ if not NULL, it must be a valid email address to use EBI clustalo web service. 
 			Default is to use a local clustalo installation}
 \item{perlCommand}{ a character string containing the path to Perl executable. 
@@ -78,9 +78,9 @@ data(lmObj)
 #Run lfmSingleSequence (can take some time)
 if(Sys.info()[['sysname']] == 'Windows'){
 	#For this example, parallelization in Windows is slower than serialization
-	significant_muts <- lfmSingleSequence(lmObj , parallel=FALSE)
+	significant_muts <- lfmSingleSequence(lmObj)
 }else{
-	significant_muts <- lfmSingleSequence(lmObj , parallel=TRUE)
+	significant_muts <- lfmSingleSequence(lmObj , BPPARAM=BiocParallel::MulticoreParam(2))
 }
 #Show the result 
 head(significant_muts)

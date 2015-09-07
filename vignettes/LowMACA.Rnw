@@ -291,10 +291,10 @@ myData <- lmMutations(lmObj)$data
 if(Sys.info()[['sysname']] == 'Windows'){
 	#For this example, parallelization in Windows is slower than serialization
 	significant_muts <- allPfamAnalysis(repos=myData 
-		, allLowMACAObjects='allPfamOut.RData', parallel=FALSE)
+		, allLowMACAObjects='allPfamOut.RData')
 }else{
 	significant_muts <- allPfamAnalysis(repos=myData 
-		, allLowMACAObjects='allPfamOut.RData', parallel=TRUE)
+		, allLowMACAObjects='allPfamOut.RData', BPPARAM=BiocParallel::MulticoreParam(2))
 }
 #Show the result of alignment based analysis
 head(significant_muts$AlignedSequence)

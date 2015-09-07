@@ -9,21 +9,24 @@ launches the analysis of all the Pfams and single sequences which
 are involved with at least one mutation.
 }
 \usage{
-allPfamAnalysis(repos,allLowMACAObjects=NULL,parallel=FALSE
-	,mutation_type=c("missense", "all", "truncating" , "silent")
-	, NoSilent=TRUE , mail=NULL
-	, perlCommand="perl",verbose=FALSE , conservation=0.1
-	, use_hmm=FALSE, datum=FALSE , clustal_cmd="clustalo")
+allPfamAnalysis(repos
+  						, allLowMACAObjects=NULL
+							, mutation_type=c("missense", "all", "truncating" , "silent") 
+							, NoSilent=TRUE
+							, mail=NULL
+							, perlCommand="perl"
+							, verbose=FALSE
+							, conservation=0.1
+							, use_hmm=FALSE
+							, datum=FALSE
+							, clustal_cmd="clustalo"
+							, BPPARAM=bpparam("SerialParam"))
 }
 \arguments{
 \item{repos}{ either a data.frame or a filename containing the data to analyze}
 \item{allLowMACAObjects}{ filename of a RData file to save all 
 							the LowMACA object \code{allPfamsLM} produced by the function. It can be usefull for plotting
 							a specific Pfam after the analysis, but it can be a pretty large object. Default NULL}
-\item{parallel}{ a logical or numeric argument. if TRUE, launch internal method 
-				\code{allPfamAnalysis} in parallel mode with maximum number 
-				of available cores. If it is an integer, it sets the number of cores. 
-				Default: FALSE}
 \item{mutation_type}{ type of mutation to be considered for the analysis. 
 		Default to missense.}
 \item{NoSilent}{ logical indicating if Silent mutations should be deleted or not.
@@ -45,7 +48,10 @@ allPfamAnalysis(repos,allLowMACAObjects=NULL,parallel=FALSE
 			disregarding the set of sequences that are 
 			selected for the analysis.
 			Default is FALSE.}
-\item{clustal_cmd}{system call to the clustalomega aligner}
+\item{clustal_cmd}{ path to clustalomega executable. default is to check "clustalo" in the PATH}
+\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam}} specifiying parameters related to
+  the parallel execution of some of the tasks and calculations within this function.
+  See function \code{\link[BiocParallel]{bpparam}()} from the \code{BiocParallel} package.}
 }
 \details{
 This function takes a data.frame or a tab delimited text file in LowMACA format (see \code{\link{LowMACA_AML}})
@@ -108,9 +114,9 @@ myData <- lmMutations(lmObj)$data
 #Run allPfamAnalysis on every mutations
 if(Sys.info()[['sysname']] == 'Windows'){
 	#For this example, parallelization in Windows is slower than serialization
-	significant_muts <- allPfamAnalysis(repos=myData , parallel=FALSE)
+	significant_muts <- allPfamAnalysis(repos=myData)
 }else{
-	significant_muts <- allPfamAnalysis(repos=myData , parallel=2)
+	significant_muts <- allPfamAnalysis(repos=myData , BPPARAM=BiocParallel::MulticoreParam(2))
 }
 #Show the result of alignment based analysis
 head(significant_muts$AlignedSequence)

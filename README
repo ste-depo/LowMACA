@@ -7,7 +7,7 @@ For Linux and MacOSX users don't forget to run chmod u+x clustalo.
 If you don't want to install a local clustalo, you can use the clustal omega web service, 
 but you will need perl with the modules XML::Simple and LWP. They are generally included in every new perl installation.
 
-Ghostscript is an interpreter of postscript language and that is used by the R library grImport to draw logo plots.
+Ghostscript is an interpreter of postscript language and that is used by the R library grImport to draw logo plots. It is generally already present in most Unix OS.
 	-	For Linux users, simply download the program from http://ghostscript.com/download/gsdnld.html and compile it
 	-	For MacOS users there is a dmg installer at http://pages.uoregon.edu/koch/
 	-	For Windows users, download the program from http://ghostscript.com/download/gsdnld.html and then you have 3 options:

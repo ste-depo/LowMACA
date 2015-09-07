@@ -515,9 +515,15 @@ setMethod('lfm', 'LowMACA', function(object, metric='qvalue', threshold=.05, con
 	})
 
 setGeneric('lfmSingleSequence', 
-	function(object, metric='qvalue', threshold=.05, conservation=0.1 , parallel=FALSE , mail=NULL , perlCommand="perl",verbose=FALSE) standardGeneric('lfmSingleSequence'))
+	function(object, metric='qvalue', threshold=.05, conservation=0.1 
+		# , parallel=FALSE
+		, BPPARAM=bpparam("SerialParam")
+		, mail=NULL , perlCommand="perl",verbose=FALSE) standardGeneric('lfmSingleSequence'))
 setMethod('lfmSingleSequence', 'LowMACA', 
-	function(object, metric='qvalue', threshold=.05, conservation=0.1 , parallel=FALSE , mail=NULL, perlCommand="perl",verbose=FALSE) {
+	function(object, metric='qvalue', threshold=.05, conservation=0.1 
+		# , parallel=FALSE
+		, BPPARAM=bpparam("SerialParam")
+		, mail=NULL, perlCommand="perl",verbose=FALSE) {
 	#Checks on parameters
 	if(! (metric %in% c("qvalue" , "pvalue") ))
 		stop("metric parameter can be only 'pvalue' or 'qvalue'")
@@ -526,29 +532,29 @@ setMethod('lfmSingleSequence', 'LowMACA',
 	if(!(conservation <= 1 && threshold>=0))
 		stop("conservation score threshold must be a number between 0 and 1")
 	#Parallel options
-	if(is.logical(parallel) && parallel==TRUE)
-		cores <- parallel::detectCores()
-	if(is.logical(parallel) && parallel==FALSE)
-		cores <- 1L
-	if(is.numeric(parallel))
-		cores <- min(parallel , parallel::detectCores())
+	# if(is.logical(parallel) && parallel==TRUE)
+	# 	cores <- parallel::detectCores()
+	# if(is.logical(parallel) && parallel==FALSE)
+	# 	cores <- 1L
+	# if(is.numeric(parallel))
+	# 	cores <- min(parallel , parallel::detectCores())
+	# if( cores > 1 ) {
+	# 	applyfun <- bplapply
+	# 	if( Sys.info()[['sysname']] == 'Windows' ){
+	# 		#applyfun <- lapply
+	# 		options(MulticoreParam=SnowParam(workers=cores))
+	# 	} else {
+	# 		options(MulticoreParam=MulticoreParam(workers=cores))
+	# 	}
+	# } else {
+	# 	applyfun <- lapply
+	# }
 	mode <- object@arguments$mode
 	data_split <- split(object@mutations$data, object@mutations$data$Gene_Symbol)
-	if( cores > 1 ) {
-		applyfun <- bplapply
-		if( Sys.info()[['sysname']] == 'Windows' ){
-			#applyfun <- lapply
-			options(MulticoreParam=SnowParam(workers=cores))
-		} else {
-			options(MulticoreParam=MulticoreParam(workers=cores))
-		}
-	} else {
-		applyfun <- lapply
-	}
 	if(mode=="pfam") {
 		#LOL stands for Lots Of LowMACAs
-		LOL <- applyfun(data_split , function(x) {
-						library(LowMACA)
+		LOL <- bplapply(data_split , function(x) {
+						if(Sys.info()[['sysname']] == 'Windows') library(LowMACA)
 						if(nrow(x)==0)
 							return(NULL)
 						if(verbose)
@@ -558,10 +564,10 @@ setMethod('lfmSingleSequence', 'LowMACA',
 						out <- suppressMessages(setup(out , repos=x , mail=mail , perlCommand=perlCommand))
 						out <- suppressMessages(entropy(out))
 						lfm(out , metric=metric , threshold=threshold , conservation=conservation)
-						})
+						} , BPPARAM=BPPARAM)
 	} else {
-		LOL <- applyfun(data_split , function(x) {
-						library(LowMACA)
+		LOL <- bplapply(data_split , function(x) {
+						if(Sys.info()[['sysname']] == 'Windows') library(LowMACA)
 						if(nrow(x)==0)
 							return(NULL)
 						if(verbose)
@@ -570,7 +576,7 @@ setMethod('lfmSingleSequence', 'LowMACA',
 						out <- suppressMessages(setup(out , repos=x , mail=mail , perlCommand=perlCommand))
 						out <- suppressMessages(entropy(out))
 						lfm(out , metric=metric , threshold=threshold , conservation=conservation)
-						})
+						} , BPPARAM=BPPARAM)
 	}
 	LOL_out <- do.call("rbind" , LOL)
 	return(LOL_out)
@@ -628,7 +634,7 @@ setMethod('nullProfile', 'LowMACA', function(object, conservation=NULL , windowl
 	    	object@alignment$df$lTsh,
 	    	object@alignment$df$uTsh,
 	    	object@alignment$df$profile*1.1
-	    	) , na.rm=TRUE)
+	    	), na.rm=TRUE)
 
 	    # red bars of the resudues over the threshold
 

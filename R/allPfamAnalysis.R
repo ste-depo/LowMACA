@@ -1,6 +1,5 @@
 allPfamAnalysis <- function(repos
 							, allLowMACAObjects=NULL
-							, parallel=FALSE 
 							, mutation_type=c("missense", "all", "truncating" , "silent") 
 							, NoSilent=TRUE
 							, mail=NULL
@@ -10,6 +9,7 @@ allPfamAnalysis <- function(repos
 							, use_hmm=FALSE
 							, datum=FALSE
 							, clustal_cmd="clustalo"
+							, BPPARAM=bpparam("SerialParam")
                             ) {
 	#library(LowMACA)
 	# analyze all the pfams involved in the repos
@@ -69,39 +69,39 @@ allPfamAnalysis <- function(repos
 		message("Splitting dataset into Pfams...")
 	myPfamReposSplit <- split(myPfamRepos, myPfamRepos$Pfam_ID)
 	####################
-	# Parallel options
+	# Parallel options (now exposed to user via BPPARAM)
 	#####################
-	if(is.logical(parallel) && parallel==TRUE)
-		cores <- parallel::detectCores()
-	if(is.logical(parallel) && parallel==FALSE)
-		cores <- 1L
-	if(is.numeric(parallel))
-		cores <- min(parallel , parallel::detectCores())
-	if( cores > 1 ) {
-		applyfun <- bplapply
-		if( Sys.info()[['sysname']] == 'Windows' ){
-			#applyfun <- lapply
-			options(MulticoreParam=SnowParam(workers=cores))
-		} else {
-			options(MulticoreParam=MulticoreParam(workers=cores))
-		}
-	} else {
-		applyfun <- lapply
-	}
+	# if(is.logical(parallel) && parallel==TRUE)
+	# 	cores <- parallel::detectCores()
+	# if(is.logical(parallel) && parallel==FALSE)
+	# 	cores <- 1L
+	# if(is.numeric(parallel))
+	# 	cores <- min(parallel , parallel::detectCores())
+	# if( cores > 1 ) {
+	# 	applyfun <- bplapply
+	# 	if( Sys.info()[['sysname']] == 'Windows' ){
+	# 		#applyfun <- lapply
+	# 		options(MulticoreParam=SnowParam(workers=cores))
+	# 	} else {
+	# 		options(MulticoreParam=MulticoreParam(workers=cores))
+	# 	}
+	# } else {
+	# 	applyfun <- lapply
+	# }
 	##########################################
 	# Create a LowMACA objects for every Pfam
 	###########################################
 	if(verbose)
 		message("Creating LowMACA objects for every Pfam...")
-	allPfamsLM <- applyfun(myPfamReposSplit, function(x) {
+	allPfamsLM <- bplapply(myPfamReposSplit, function(x) {
 		if(Sys.info()[['sysname']] == 'Windows') library(LowMACA)
 		#attach(loadNamespace(sub('package:' , '' , search()[search()!=".GlobalEnv"])))
 		pfam <- unique(x$Pfam_ID)
 		genes <- unique(x$Gene_Symbol)
 		if(verbose)
 		    message(paste('Analyzing PFAM ', pfam, '...', sep=''))
-	    if( cores>1 ) {
-	    	invisible(capture.output(suppressWarnings(suppressMessages({
+	    # if( cores>1 ) {
+	    invisible(capture.output(suppressWarnings(suppressMessages({
 				lmDomain <- newLowMACA(pfam=pfam, genes=genes)
 				lmParams(lmDomain)$clustal_cmd <- clustal_cmd
 				lmDomain <- setup(lmDomain, repos=repos 
@@ -110,32 +110,35 @@ allPfamAnalysis <- function(repos
 				lmDomain <- entropy(lmDomain)
 				}))))
 	    	return(lmDomain)
-    	} else {
-	    	suppressWarnings(suppressMessages({
-				lmDomain <- newLowMACA(pfam=pfam, genes=genes)
-				lmParams(lmDomain)$clustal_cmd <- clustal_cmd
-				lmDomain <- setup(lmDomain, repos=repos 
-					, mail=mail , perlCommand=perlCommand
-					, use_hmm=use_hmm, datum=datum)
-				lmDomain <- entropy(lmDomain)
-				}))
-	    	return(lmDomain)
-    	}})
+    # 	} else {
+	   #  	suppressWarnings(suppressMessages({
+				# lmDomain <- newLowMACA(pfam=pfam, genes=genes)
+				# lmParams(lmDomain)$clustal_cmd <- clustal_cmd
+				# lmDomain <- setup(lmDomain, repos=repos 
+				# 	, mail=mail , perlCommand=perlCommand
+				# 	, use_hmm=use_hmm, datum=datum)
+				# lmDomain <- entropy(lmDomain)
+				# }))
+	   #  	return(lmDomain)
+    	# }
+    	} , BPPARAM=BPPARAM)
 	##########################################################
 	# extract gene level information on no alignment analysis
 	###########################################################
 	if(verbose)
 		message("Performing Single Gene analysis...")
-	singleSequence <- applyfun(allPfamsLM , function(object) {
+	singleSequence <- lapply(allPfamsLM , function(object) {
 		if(Sys.info()[['sysname']] == 'Windows') library(LowMACA)
 		#attach(loadNamespace(sub('package:' , '' , search()[search()!=".GlobalEnv"])))
 		if(!verbose)
 			suppressMessages(lfmSingleSequence(object, metric='qvalue', threshold=.05
-				, conservation=conservation , parallel=FALSE , mail=NULL , perlCommand="perl"))
+				, conservation=conservation , mail=NULL , perlCommand="perl" , BPPARAM=BPPARAM))
 		else
 			lfmSingleSequence(object, metric='qvalue', threshold=.05
-				, conservation=conservation , parallel=FALSE , mail=NULL , perlCommand="perl")
-		} )
+				, conservation=conservation , mail=NULL , perlCommand="perl" , BPPARAM=BPPARAM
+				, verbose=TRUE)
+		# } , BPPARAM=BPPARAM)
+		})
 	singleSequence <- do.call("rbind" , singleSequence)
 	if( !is.null(allLowMACAObjects) )
 		save(allPfamsLM, file=allLowMACAObjects)
@@ -144,8 +147,8 @@ allPfamAnalysis <- function(repos
 	#########################################################
 	# extract gene level information on alignment analysis
 	########################################################
-	allPfamAnalysis <- applyfun(allPfamsLM, function(lmDomain) {
-		library(LowMACA)
+	pfamAnalysis <- bplapply(allPfamsLM, function(lmDomain) {
+		if(Sys.info()[['sysname']] == 'Windows') library(LowMACA)
 		## get the significant positions
 		pfam <- unique(as.character(lmDomain@arguments$input$Pfam_ID))
 		signPos <- lfm(lmDomain)
@@ -196,13 +199,13 @@ allPfamAnalysis <- function(repos
 		})
 		pfamOut <- do.call('rbind', pfamOut)
 		out <- merge(pfamOut, signPos)
-	})
-	allPfamAnalysis <- do.call('rbind', allPfamAnalysis)
-	tryError <- tryCatch(rownames(allPfamAnalysis) <- 1:nrow(allPfamAnalysis) , error=function(e) "No Significant Mutations")
+	} , BPPARAM=BPPARAM)
+	pfamAnalysis <- do.call('rbind', pfamAnalysis)
+	tryError <- tryCatch(rownames(pfamAnalysis) <- 1:nrow(pfamAnalysis) , error=function(e) "No Significant Mutations")
 	if(!identical(tryError , "No Significant Mutations"))
-		allPfamAnalysis <- allPfamAnalysis[ order(allPfamAnalysis$metric) , ]
+		pfamAnalysis <- pfamAnalysis[ order(pfamAnalysis$metric) , ]
 	else 
-		allPfamAnalysis <- tryError
-	final_output <- list(AlignedSequence=allPfamAnalysis , SingleSequence=singleSequence)
+		pfamAnalysis <- tryError
+	final_output <- list(AlignedSequence=pfamAnalysis , SingleSequence=singleSequence)
 	return(final_output)
 }

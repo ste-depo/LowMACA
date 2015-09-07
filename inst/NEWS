@@ -1,3 +1,10 @@
+### Version 1.1.2 ###
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- new parallel implementation of allPfamAnalysis and lfmSingleSequence. nested parallel sections avoided and parallel back-end completely exposed to the user
+- Parallelization in vignette and example reduced to 2 cores
+
 ### Version 1.1.0 ###
 ADDITIONAL FUNCTIONS:
 - New lfmSingleSequence method

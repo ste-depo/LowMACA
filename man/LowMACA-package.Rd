@@ -27,9 +27,7 @@ Stefano de Pretis , Giorgio Melloni
 Maintainer: <ste.depo@gmail.com> <melloni.giorgio@gmail.com>
 }
 \references{
-doi:10.1186/gm563 923 Melloni et al.: 
-DOTS-Finder: a comprehensive tool for assessing driver genes in cancer genomes. 
-Genome Medicine 2014 6:44
+Pretis Sd and Melloni G (2015). LowMACA: LowMACA - Low frequency Mutation Analysis via Consensus Alignment. R package version 1.0.0.
 }
 \keyword{ package }
 \seealso{
