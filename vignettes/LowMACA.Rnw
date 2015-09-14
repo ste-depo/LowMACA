@@ -306,13 +306,6 @@ unique(significant_muts$SingleSequence$Gene_Symbol)
 
 The parameter \Rcode{allLowMACAObjects} can be used to specify the name of the file where all the Pfam analyses will be stored (by default this information is not stored, because the resulting file can be huge, according to the size of the input dataset). In this case, all the analysed Pfams are stored as \Rpackage{LowMACA} objects and they can be loaded and analysed with the usual \Rpackage{LowMACA} workflow.
 
-<<allPfamAnalysis2, eval=TRUE>>=
-load('allPfamOut.RData')
-names(allPfamsLM)
-(pfam <- names(allPfamsLM)[2])
-lmPlot(allPfamsLM[[pfam]])
-@
-
 %
 \section{Summary}
 Copy and paste on your R console and perform the entire analysis by yourself. You need Ghostscript to see all the plots.
