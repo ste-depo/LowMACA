@@ -1,3 +1,9 @@
+### Version 1.1.5 ###
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- Error handling for protter method. When Protter server is out of order, it returns an empty image with text
+
 ### Version 1.1.4 ###
 ADDITIONAL FUNCTIONS:
 ***

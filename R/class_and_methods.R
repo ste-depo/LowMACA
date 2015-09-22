@@ -1098,9 +1098,30 @@ setMethod('protter', 'LowMACA', function(object, filename='protter.png', thresho
 	WebQuery <- paste("http://wlab.ethz.ch/protter/create?seq=", Sequence, 
 		"&tm=auto&mc=lightsalmon&lc=blue&tml=numcount&numbers&legend&n:signal%20peptide,cc:white,fc:blue,bc:blue=Phobius.SP&n:N-glyco%20motif,s:box,fc:forestgreen,bc:forestgreen=(N).[ST]&n:MUT_pvalue,bc:orange="
 		, Mutation_pvalues, "&n:MUT_qvalue,bc:red=", Mutation_qvalues, "&format=png",sep="")
-	if(Sys.info()['sysname']=="Windows")
-		download.file(WebQuery, destfile=filename , mode="wb")
-	else
-		download.file(WebQuery, destfile=filename)
+	if(Sys.info()['sysname']=="Windows"){
+		tryCatch( download.file(WebQuery, destfile=filename , mode="wb") 
+			, error=function(e) {
+				png(filename)
+				par(mar = c(0,0,0,0))
+        		plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+        		text(x = 0.5, y = 0.5, paste("The plot is not available\n",
+                              				"Protter service is out of order\n",
+                              				"Sorry, try another time"), 
+                              cex = 1.6, col = "black")
+        		dev.off()
+		})
+	} else {
+		tryCatch( download.file(WebQuery, destfile=filename) 
+			, error=function(e) {
+				png(filename)
+				par(mar = c(0,0,0,0))
+        		plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+        		text(x = 0.5, y = 0.5, paste("The plot is not available\n",
+                              				"Protter service is out of order\n",
+                              				"Sorry, try another time"), 
+                              cex = 1.6, col = "black")
+        		dev.off()
+		})
 	message(paste("Protter plot saved as:" , normalizePath(filename)))
-	})
+	}
+})
