@@ -75,13 +75,8 @@ Stefano de Pretis , Giorgio Melloni
 \examples{
 #Load homeobox example
 data(lmObj)
-#Run lfmSingleSequence (can take some time)
-if(Sys.info()[['sysname']] == 'Windows'){
-	#For this example, parallelization in Windows is slower than serialization
-	significant_muts <- lfmSingleSequence(lmObj)
-}else{
-	significant_muts <- lfmSingleSequence(lmObj , BPPARAM=BiocParallel::MulticoreParam(2))
-}
+#Run lfmSingleSequence
+significant_muts <- lfmSingleSequence(lmObj)
 #Show the result 
 head(significant_muts)
 #Show all the genes that harbor significant mutations without the alignment

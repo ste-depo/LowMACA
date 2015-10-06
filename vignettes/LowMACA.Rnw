@@ -288,12 +288,7 @@ data(lmObj)
 #Extract the data inside the object as a toy example
 myData <- lmMutations(lmObj)$data
 #Run allPfamAnalysis on every mutations
-if(Sys.info()[['sysname']] == 'Windows'){
-	#For this example, parallelization in Windows is slower than serialization
-	significant_muts <- allPfamAnalysis(repos=myData)
-}else{
-	significant_muts <- allPfamAnalysis(repos=myData , BPPARAM=BiocParallel::MulticoreParam(2))
-}
+significant_muts <- allPfamAnalysis(repos=myData)
 #Show the result of alignment based analysis
 head(significant_muts$AlignedSequence)
 #Show all the genes that harbor significant mutations
