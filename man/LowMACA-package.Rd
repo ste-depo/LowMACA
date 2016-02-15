@@ -27,7 +27,7 @@ Stefano de Pretis , Giorgio Melloni
 Maintainer: <ste.depo@gmail.com> <melloni.giorgio@gmail.com>
 }
 \references{
-Pretis Sd and Melloni G (2015). LowMACA: LowMACA - Low frequency Mutation Analysis via Consensus Alignment. R package version 1.0.0.
+Melloni GEM, de Pretis S, Riva L, et al. LowMACA: exploiting protein family analysis for the identification of rare driver mutations in cancer. BMC Bioinformatics. 2016;17:80. doi:10.1186/s12859-016-0935-7
 }
 \keyword{ package }
 \seealso{

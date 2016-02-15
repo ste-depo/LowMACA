@@ -48,3 +48,6 @@ BUG FIXES:
 - Some non-TCGA standard mutation types are now deleted from getMutations function ("Fusion" , "COMPLEX_INDEL" , "vIII deletion" , "Splice_Site_SNP" , "Indel")
 - NAMESPACE was improved removing the import of the whole motifStack package and Biostrings package
 - motifStack generic "plot" method was replaced with plotMotifLogo function to prevent conflicts with devtools load_all
+
+### Version 1.2.1 ###
+Add CITATION after BMC Bioinformatics publication

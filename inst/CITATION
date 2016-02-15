@@ -1,0 +1,22 @@
+citHeader("To cite package 'LowMACA' in publications use:")
+
+citEntry(
+entry="article",
+title = "LowMACA: exploiting protein family analysis for the identification of rare driver mutations in cancer",
+author = personList(as.person("Giorgio EM Melloni"),
+                    as.person("Stefano de Pretis"),
+                    as.person("Laura Riva"),
+                    as.person("Mattia Pelizzola"),
+                    as.person("Arnaud Ceol"),
+                    as.person("Jole Costanza"),
+                    as.person("Heiko Muller"),
+                    as.person("Luca Zammataro")
+                    ),
+year = "2016",
+journal = "BMC Bioinformatics",
+volume = "17",
+number = "80",
+# pages = "",
+doi = "doi:10.1186/s12859-016-0935-7", 
+textVersion = "Melloni GEM, de Pretis S, Riva L, et al. LowMACA: exploiting protein family analysis for the identification of rare driver mutations in cancer. BMC Bioinformatics. 2016;17:80. doi:10.1186/s12859-016-0935-7"
+)
