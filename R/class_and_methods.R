@@ -498,9 +498,13 @@ setMethod('lfm', 'LowMACA', function(object, metric='qvalue', threshold=.05, con
 				, 'Amino_Acid_Change', 'Sample', 'Tumor_Type')
 			mutData <- object@mutations$data[, selectedColumns]
 			lfm <- merge(mutData, alnData)
-			if( nrow(lfm)>0 )
+			if( nrow(lfm)>0 ){
 				lfm$Multiple_Aln_pos <- pos
 				lfm$metric <- switch(metric, 'pvalue'=pvalue[pos], 'qvalue'=qvalue[pos])
+			} else {
+				lfm$Multiple_Aln_pos <- character(0)
+				lfm$metric <- numeric(0)
+			}
 			return(lfm)
 			})
 		out <- do.call('rbind', out)
@@ -678,7 +682,8 @@ setMethod('nullProfile', 'LowMACA', function(object, conservation=NULL , windowl
 
 setGeneric('lmPlot', function(object, conservation=NULL , splitLen=NULL) standardGeneric('lmPlot'))
 setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NULL) {
-
+	opar <- par("mfrow" , "mar")
+	on.exit(par(opar))
 	if( length(object@alignment)==0 )
 		stop('Perform alignment on the object before plotting.')
 
@@ -692,7 +697,7 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 		message('No mutations available for this object.')
 	} else {
 		if(is.null(conservation))
-			conservation <-- object@entropy$conservation_thr
+			conservation <- object@entropy$conservation_thr
 		if( is.null(splitLen) )
 			splitLen <- ncol(object@mutations$aligned)
 
@@ -801,13 +806,6 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 				gene <- as.character(object@arguments$input$Gene_Symbol)
 				domains <- myPfam[myPfam$Gene_Symbol==gene
 					, c("Envelope_Start" , "Envelope_End" , "Pfam_Name")]
-				for( i in 1:nrow(domains) ) {
-					int <- intersect(domains$Envelope_Start[i]:domains$Envelope_End[i], windowlimits)
-					if( length(int)>0 ) {
-						domains$Envelope_Start[i] <- min(int)
-						domains$Envelope_End[i] <- max(int)
-					} else domains <- domains[-i,]
-				}
 				## create empty plot
 				plot.new()
 				plot.window(
@@ -817,6 +815,15 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 				par(mar=c(0,0,0,0))
 				## plot domains
 				if(nrow(domains)>0) {
+					for( i in 1:nrow(domains) ) {
+						int <- intersect(domains$Envelope_Start[i]:domains$Envelope_End[i], windowlimits)
+						if( length(int)>0 ) {
+							domains$Envelope_Start[i] <- min(int)
+							domains$Envelope_End[i] <- max(int)
+						} else {
+							domains <- domains[-i,]
+						}
+					}
 					for (i in 1:nrow(domains)) {
 						xleft=as.numeric(domains[i , "Envelope_Start"])
 						xright=as.numeric(domains[i , "Envelope_End"])

@@ -1,3 +1,11 @@
+### Version 1.3.2 ###
+ADDITIONAL FUNCTIONS:
+- Add CITATION
+BUG FIXES:
+- lfm method bug when using bw > 0
+- little typo fix
+- add on.exit par parameters fix 
+
 ### Version 1.1.51 ###
 ADDITIONAL FUNCTIONS:
 ***
