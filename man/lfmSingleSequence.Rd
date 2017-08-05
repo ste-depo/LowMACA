@@ -11,8 +11,11 @@ on every gene or domain inside a LowMACA object without aligning the sequences
 }
 \usage{
 lfmSingleSequence(object , metric='qvalue', threshold=.05 
-	, conservation=0.1 , BPPARAM=bpparam("SerialParam") , mail=NULL , perlCommand="perl"
-	,verbose=FALSE)
+, conservation=0.1 
+, BPPARAM=bpparam("SerialParam") 
+, mail=NULL 
+, perlCommand="perl"
+,verbose=FALSE)
 }
 \arguments{
 \item{object}{ a LowMACA class object}

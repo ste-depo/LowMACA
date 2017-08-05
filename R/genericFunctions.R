@@ -554,7 +554,12 @@ showTumorType <- function() {
     } else applyfun <- lapply
     out_double <- applyfun(chosenTumors , function(i)
         {
-            geneticProfile <- getGeneticProfiles(mycgds, i)[ ,c(1:2)]
+            geneticProfile <- getGeneticProfiles(mycgds, i)
+            if(nrow(geneticProfile)==0){
+              return( list( out=NULL , patients=NULL) )
+            } else {
+              geneticProfile <- geneticProfile[ ,c(1:2)]
+            }
             sel <- geneticProfile$genetic_profile_name=="Mutations"
             geneticProfile <- geneticProfile[sel, 1]
             caseList <- getCaseLists(mycgds, i)

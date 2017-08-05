@@ -10,17 +10,17 @@ are involved with at least one mutation.
 }
 \usage{
 allPfamAnalysis(repos
-  						, allLowMACAObjects=NULL
-							, mutation_type=c("missense", "all", "truncating" , "silent") 
-							, NoSilent=TRUE
-							, mail=NULL
-							, perlCommand="perl"
-							, verbose=FALSE
-							, conservation=0.1
-							, use_hmm=FALSE
-							, datum=FALSE
-							, clustal_cmd="clustalo"
-							, BPPARAM=bpparam("SerialParam"))
+, allLowMACAObjects=NULL
+, mutation_type=c("missense", "all", "truncating" , "silent") 
+, NoSilent=TRUE
+, mail=NULL
+, perlCommand="perl"
+, verbose=FALSE
+, conservation=0.1
+, use_hmm=FALSE
+, datum=FALSE
+, clustal_cmd="clustalo"
+, BPPARAM=bpparam("SerialParam"))
 }
 \arguments{
 \item{repos}{ either a data.frame or a filename containing the data to analyze}

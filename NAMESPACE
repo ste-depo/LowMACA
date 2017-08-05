@@ -13,6 +13,14 @@ importFrom(motifStack , plotMotifLogo , pcm2pfm , colorset)
 importFrom(Biostrings , consensusMatrix , readAAMultipleAlignment)
 importFrom(Biostrings , AAMultipleAlignment, as.matrix)
 importClassesFrom(Biostrings , AAMultipleAlignment)
+importFrom("grDevices", "colorRampPalette", "dev.off", "png",
+             "topo.colors")
+  importFrom("graphics", "axis", "barplot", "layout", "legend", "lines",
+             "par", "plot", "plot.new", "plot.window", "rect", "text")
+  importFrom("stats", "AIC", "aggregate", "density", "lm", "median",
+             "p.adjust", "pbinom", "pgamma", "qgamma", "sd")
+  importFrom("utils", "capture.output", "data", "download.file", "head",
+             "read.table", "write.table")
 exportPattern("^[[:alpha:]]+")
 exportMethods(
     "alignSequences",
