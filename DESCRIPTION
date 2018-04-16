@@ -8,7 +8,7 @@ Maintainer: Stefano de Pretis <ste.depo@gmail.com>, Giorgio Melloni <melloni.gio
 Description: The LowMACA package is a simple suite of tools to investigate and analyze the mutation profile of several proteins or pfam domains via consensus alignment. You can conduct an hypothesis driven exploratory analysis using our package simply providing a set of genes or pfam domains of your interest.
 License: GPL-3
 Depends: R (>= 2.10)
-Imports: cgdsr, parallel, stringr, reshape2, data.table, RColorBrewer, methods, LowMACAAnnotation, BiocParallel, motifStack, Biostrings
+Imports: cgdsr, parallel, stringr, reshape2, data.table, RColorBrewer, methods, LowMACAAnnotation, BiocParallel, motifStack, Biostrings, httr
 Suggests: BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: SomaticMutation, SequenceMatching, WholeGenome, Sequencing, Alignment, DataImport, MultipleSequenceAlignment

@@ -6,6 +6,7 @@ import(
     RColorBrewer,
     BiocParallel
 )
+importFrom(httr , GET)
 importFrom(stringr, str_extract)
 importFrom(reshape2, melt)
 importFrom(data.table, rbindlist)
