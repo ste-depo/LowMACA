@@ -3,8 +3,7 @@
 #### functions hidden to the user
 ####################################
 
-.findPerl <- function(perl, verbose = "FALSE")
-{
+.findPerl <- function(perl, verbose = "FALSE"){
   errorMsg <- "perl executable not found. Use perl= argument to specify the correct path." 
   if (missing(perl))
     {
@@ -62,8 +61,7 @@
         myFunc(paste( "LWP module for perl is not installed. 
             If you don't want to install a local clustal omega and use the web service, LWP is required", checkLWP , sep="\n"))
 }
-.myTrimmer <- function (object, ...) 
-{
+.myTrimmer <- function (object, ...) {
    s <- sub("^[\t\n\f\r ]*", "", as.character(object))
    s <- sub("[\t\n\f\r ]*$", "", s)
    s
@@ -249,8 +247,7 @@ showTumorType <- function() {
             return(result)
 }
 
-.clustalOAlign <- function(genesData, clustal_cmd, filename , mail , perlCommand, use_hmm, datum)
-{
+.clustalOAlign <- function(genesData, clustal_cmd, filename , mail , perlCommand, use_hmm, datum){
     # # get the protein sequences corresponding to the selected genes
     # # from the uniprot_file
     # arrange the protein sequences to make a fasta format file
@@ -472,8 +469,7 @@ showTumorType <- function() {
 
 }
 
-.clustalMatrix <- function(filename)
-{
+.clustalMatrix <- function(filename){
     origMAlign <- readAAMultipleAlignment(filepath = filename , format="clustal")
     origMAlign_mat <- Biostrings::as.matrix(origMAlign)
     out <- apply(origMAlign_mat, 1 , function(seq) {
@@ -502,8 +498,7 @@ showTumorType <- function() {
 }
 
     #Calculate similarity matrix and some summary statistics
-.scoreMatrix <- function(filename , mail)
-{
+.scoreMatrix <- function(filename , mail){
     dist_seq <- read.table(filename , row.names=1 , skip=1)
     if(!is.null(mail)) {
         rownames(dist_seq) <- dist_seq$V2
@@ -551,45 +546,75 @@ showTumorType <- function() {
     if(parallelize) {
         applyfun <- mclapply
         options('mc.cores'=detectCores())
-    } else applyfun <- lapply
-    out_double <- applyfun(chosenTumors , function(i)
-        {
-            geneticProfile <- getGeneticProfiles(mycgds, i)
-            if(nrow(geneticProfile)==0){
-              return( list( out=NULL , patients=NULL) )
-            } else {
-              geneticProfile <- geneticProfile[ ,c(1:2)]
-            }
-            sel <- geneticProfile$genetic_profile_name=="Mutations"
-            geneticProfile <- geneticProfile[sel, 1]
-            caseList <- getCaseLists(mycgds, i)
-            sel <- caseList$case_list_name=="Sequenced Tumors"
-            if(any(sel)) {
-                caseListID <- caseList[sel, 1]
-                tryCatch(
-                    muts <- getMutationData( mycgds 
-                        , caseList=caseListID 
-                        , geneticProfile=geneticProfile 
-                        , genes=myGenes[ , 'Entrez'])
-                    , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study"))
-                )
-                if(!exists("muts")) {
-                    muts <- NULL
-                    patients <- NULL
-                } else {
-                    if(ncol(muts)!=22) {
-                        muts <- NULL
-                        patients <- NULL
-                    } else {
-                        patients <- strsplit(caseList[sel, 'case_ids'] , split=" ")[[1]]
-                    }
-                }
-            } else {
-                muts <- NULL
-                patients <- NULL
-            }
-            return( list( out=muts , patients=patients) )
-        })
+    } else {
+      applyfun <- lapply
+    }
+    out_double <- applyfun(chosenTumors , function(i) {
+      #for each Cancer Study, fetch the type of alteration (genetic profile) 
+      #to be considered
+      geneticProfile <- tryCatch({
+        cgdsr::getGeneticProfiles(mycgds, i)
+      } , error = function(e) {
+        url <- paste0(mycgds$.url, "webservice.do?cmd=getGeneticProfiles&&cancer_study_id=", i)
+        res <- httr::GET(url)
+        if(res$status_code!=200){
+          stop(paste("Problems with cBioPortal Connection at" , url))
+        }
+        df <- strsplit(unlist(strsplit(httr::content(res) , "\n")) , split="\t")
+        caseListColnames <- df[[1]]
+        df <- do.call("rbind" , df[-1])
+        df <- as.data.frame(df , stringsAsFactors=FALSE)
+        colnames(df) <- caseListColnames
+        return(df)
+      })
+      # geneticProfile <- geneticProfile[ ,c(1:2)]
+      sel <- grepl("mutations$" , geneticProfile$genetic_profile_id)
+      geneticProfile <- geneticProfile[sel, 1]
+      
+      caseList <- tryCatch({
+        cgdsr::getCaseLists(mycgds, i)
+      } , error = function(e) {
+        url <- paste(mycgds$.url, "webservice.do?cmd=getCaseLists&cancer_study_id=", i, sep = "")
+        res <- httr::GET(url)
+        if(res$status_code!=200){
+          stop(paste("Problems with cBioPortal Connection at" , url))
+        }
+        df <- strsplit(unlist(strsplit(httr::content(res) , "\n")) , split="\t")
+        caseListColnames <- df[[1]]
+        df <- do.call("rbind" , df[-1])
+        df <- as.data.frame(df , stringsAsFactors=FALSE)
+        colnames(df) <- caseListColnames
+        return(df)
+      })
+      #find if we have any sequenced tumor
+      sel <- caseList$case_list_name=="Sequenced Tumors"
+      # sometimes 'Sequenced Tumors' is not the name of the case_list_name for mutations
+      # If 'Sequenced Tumors' does not exist, try 'All Tumors'
+      if(!any(sel)){
+        sel <- caseList$case_list_name=="All Tumors"
+      }
+      caseListID <- caseList[sel, 1]
+      caseList <- getCaseLists(mycgds, i)
+      tryCatch(
+        muts <- getMutationData( mycgds 
+        , caseList=caseListID 
+        , geneticProfile=geneticProfile 
+        , genes=as.character(myGenes[ , 'Entrez']))
+        , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study"))
+      )
+      if(!exists("muts")) {
+        muts <- NULL
+        patients <- NULL
+      } else {
+        if(ncol(muts)!=22) {
+          muts <- NULL
+          patients <- NULL
+        } else {
+          patients <- strsplit(caseList[sel, 'case_ids'] , split=" ")[[1]]
+        }
+      }
+    return( list( out=muts , patients=patients) )
+    })
     if(all(sapply(out_double , function(x) is.null(x$out)))) {
         message("There are no mutations available for the selected tumor types and genes")
         return(list( Mutations=NULL , AbsFreq=NULL ))
