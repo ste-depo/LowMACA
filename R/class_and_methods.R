@@ -258,19 +258,19 @@ setMethod('alignSequences', 'LowMACA', function(object, clustalo_filename=NULL
 
 setGeneric('getMutations', function(object, repos=NULL) standardGeneric('getMutations'))
 setMethod('getMutations', 'LowMACA', function(object, repos=NULL) {
-	genes <- object@arguments$input
+	myGenes <- object@arguments$input
 	mutation_type <- object@arguments$params$mutation_type
 	tumor_type <- object@arguments$params$tumor_type
 	parallelGetMut <- object@arguments$parallelize$getMutations
 	# outputFolder <- object@arguments$paths$output_folder
 	if( is.null(repos) ) {
 		message("Getting mutations from cancers studies...")
-		gmOut <- .getGeneMutations(genes, 
+		gmOut <- .getGeneMutations(myGenes=myGenes, 
 			mutation_type=mutation_type, tumor_type=tumor_type, 
 			parallelize=parallelGetMut)
 	} else {
 		message("Filtering mutations from local repository...")
-		gmOut <- .getLocalGeneMutations(genes, 
+		gmOut <- .getLocalGeneMutations(myGenes=myGenes, 
 			mutation_type=mutation_type, tumor_type=tumor_type, 
 			localData=repos)
 	}

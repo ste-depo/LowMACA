@@ -68,8 +68,8 @@
 }
 
 showTumorType <- function() {
-    mycgds <- CGDS("http://www.cbioportal.org/public-portal/")
-    all_cancer_studies <- getCancerStudies(mycgds)[,c(1,2)]
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     all_cancer_studies2 <- unique(
         data.frame(
             Code=sapply(all_cancer_studies$cancer_study_id
@@ -533,8 +533,8 @@ showTumorType <- function() {
                             ,tumor_type="all_tumors"
                             )
 {
-    mycgds <- CGDS("http://www.cbioportal.org/public-portal/")
-    all_cancer_studies <- getCancerStudies(mycgds)[,c(1,2)]
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     mutation_type <- mutation_type[1]
         # If I want just silent mutation, this overwrite NoSilent mode
     if(mutation_type=="silent") NoSilent=FALSE
@@ -543,6 +543,9 @@ showTumorType <- function() {
     } else {
         chosenTumors <- all_cancer_studies[grepl( paste(tumor_type , collapse="|") , all_cancer_studies[,1] , ignore.case=TRUE) , 1]
     }
+    ### TEMPORARY FIX!!!
+    pancan <- grep("_pan_can_atlas_2018" , all_cancer_studies[,1] , value=TRUE)
+    chosenTumors <- setdiff(chosenTumors , pancan)
     if(parallelize) {
         applyfun <- mclapply
         options('mc.cores'=detectCores())
@@ -594,9 +597,9 @@ showTumorType <- function() {
         sel <- caseList$case_list_name=="All Tumors"
       }
       caseListID <- caseList[sel, 1]
-      caseList <- getCaseLists(mycgds, i)
+      caseList <- cgdsr::getCaseLists(mycgds, i)
       tryCatch(
-        muts <- getMutationData( mycgds 
+        muts <- cgdsr::getMutationData( mycgds 
         , caseList=caseListID 
         , geneticProfile=geneticProfile 
         , genes=as.character(myGenes[ , 'Entrez']))
@@ -633,7 +636,7 @@ showTumorType <- function() {
     names(npat_type) <- chosenTumors_type  
         #Mutation Dataset
     mut <- as.data.frame( 
-                rbindlist(
+                data.table::rbindlist(
                     lapply(1:length(out_double) , function(x) out_double[[x]][["out"]]) 
                     ))
     mut$Tumor_Type <- sapply(mut$genetic_profile_id , function(x) strsplit(x , split="_")[[1]][1])
@@ -648,7 +651,7 @@ showTumorType <- function() {
     #Delete all the splice sites outside the coding region (reported as e1-2 or similar notations)
     mut <- mut[ !grepl("^e" , mut$amino_acid_change) , ]
     mut$letter <- substr(mut$amino_acid_change,1,1)
-    mut$position <- as.numeric(as.character(str_extract(
+    mut$position <- as.numeric(as.character(stringr::str_extract(
                     string=mut$amino_acid_change,pattern="\\d+")))
     mut <- data.frame(
         Entrez=mut$entrez_gene_id
