@@ -209,7 +209,7 @@ To simplify this setup process, you can use directly the command setup to launch
 #Local Installation of clustalo
 lm <- setup(lm)
 #Web Service
-lm <- setup(lm , mail="lowmaca```gmail.com")
+lm <- setup(lm , mail="lowmaca@gmail.com")
 ```
 
 ## Custom Data

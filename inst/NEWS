@@ -3,6 +3,7 @@ ADDITIONAL FUNCTIONS:
 ***
 BUG FIXES:
 - bug fix in .getMutations
+- more robust mutation download
 
 ### Version 1.3.3 ###
 ADDITIONAL FUNCTIONS:
