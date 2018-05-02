@@ -596,12 +596,14 @@ showTumorType <- function() {
       if(!any(sel)){
         sel <- caseList$case_list_name=="All Tumors"
       }
+      if(!any(sel)){
+        return( list( out=NULL , patients=NULL) )
+      }
       caseListID <- caseList[sel, 1]
-      caseList <- cgdsr::getCaseLists(mycgds, i)
       tryCatch(
         muts <- cgdsr::getMutationData( mycgds 
         , caseList=caseListID 
-        , geneticProfile=geneticProfile 
+        , geneticProfile=geneticProfile
         , genes=as.character(myGenes[ , 'Entrez']))
         , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study"))
       )
@@ -613,7 +615,13 @@ showTumorType <- function() {
           muts <- NULL
           patients <- NULL
         } else {
-          patients <- strsplit(caseList[sel, 'case_ids'] , split=" ")[[1]]
+          patientsToSplit <- as.character(caseList[sel, 'case_ids'])
+          if(!is.character(patientsToSplit) || length(patientsToSplit)==0){
+            muts <- NULL
+            patients <- NULL
+          } else {
+            patients <- strsplit(patientsToSplit , split=" ")[[1]]            
+          }
         }
       }
     return( list( out=muts , patients=patients) )
