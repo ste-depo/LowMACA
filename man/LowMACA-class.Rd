@@ -59,7 +59,7 @@ newLowMACA(genes=character_vector , pfam=character_vector)
         \item{SCORE}{ : list of two elements. \code{DIST_MAT} is a matrix of pairwise similarities
                               between sequences as described by clustalo. \code{SUMMARY_SCORE} is a dataframe 
                               of summary descriptive statistics of the \code{DIST_MAT} matrix}
-        \item{CLUSTAL}{ : an object of class \code{\link[Biostrings]{AAMultipleAlignment}} from package Biostrings}
+        \item{CLUSTAL}{ : an object of class \code{\link[Biostrings]{MultipleAlignment-class}} from package Biostrings}
         \item{df}{ : a data.frame describing the consensus sequence, its per-position degree 
                           of conservation and its mutations null profile density.
                           See \code{\link{entropy}} and \code{\link{lmPlot}} for further details}
@@ -68,7 +68,7 @@ newLowMACA(genes=character_vector , pfam=character_vector)
   \item{mutations}{
       Object of class \code{"list"} with 3 elements:
       \itemize{
-        \item{data}{ : data.frame derived from the query to the cBioPortal query, \code{\link[cgdsr]{getMutationData}}
+        \item{data}{ : data.frame derived from the query to the cBioPortal query, \code{\link[cgdsr]{cgdsr-getMutationData}}
                             Every row represents a mutation stratified by position, gene and tumor type.}
         \item{freq}{ : data.frame of absolute frequency of mutation stratified by gene and tumor type.}
         \item{aligned}{ : matrix representing the number of mutations at every position in the consensus sequence 

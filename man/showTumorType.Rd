@@ -16,14 +16,14 @@ aggregation of all the available sequenced data from all the studies
 involved in a particular tumor type.
 }
 \details{
-This method is a wrapper around \code{\link[cgdsr]{getCancerStudies}} 
+This method is a wrapper around \code{\link[cgdsr]{cgdsr-getCancerStudies}} 
 and show all the barcodes for the tumor types as used by cBioPortal.
 }
 \author{
 Stefano de Pretis , Giorgio Melloni
 }
 \seealso{
-\code{\link{lmParams}} \code{\link[cgdsr]{getCancerStudies}}
+\code{\link{lmParams}} \code{\link[cgdsr]{cgdsr-getCancerStudies}}
 }
 \examples{
 data('lmObj')

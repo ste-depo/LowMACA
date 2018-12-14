@@ -3,6 +3,7 @@ ADDITIONAL FUNCTIONS:
 ***
 BUG FIXES:
 - even more robust access to cgdsr
+- some broken link to other packages functions now fixed
 
 ### Version 1.11.1
 ADDITIONAL FUNCTIONS:
