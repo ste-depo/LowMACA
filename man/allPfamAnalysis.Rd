@@ -49,9 +49,9 @@ allPfamAnalysis(repos
 			selected for the analysis.
 			Default is FALSE.}
 \item{clustal_cmd}{ path to clustalomega executable. default is to check "clustalo" in the PATH}
-\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam}} specifiying parameters related to
+\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam-class}} specifiying parameters related to
   the parallel execution of some of the tasks and calculations within this function.
-  See function \code{\link[BiocParallel]{bpparam}()} from the \code{BiocParallel} package.}
+  See function \code{\link[BiocParallel]{register}} from the \code{BiocParallel} package.}
 }
 \details{
 This function takes a data.frame or a tab delimited text file in LowMACA format (see \code{\link{LowMACA_AML}})

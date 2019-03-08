@@ -26,9 +26,9 @@ lfmSingleSequence(object , metric='qvalue', threshold=.05
 \item{conservation}{ a numeric value in the range of 0-1 that defines 
 				the threshold of trident conservation score 
 				to include the specified position. Default: 0.1}
-\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam}} specifiying parameters related to
+\item{BPPARAM}{ An object of class \code{\link[BiocParallel]{BiocParallelParam-class}} specifiying parameters related to
   the parallel execution of some of the tasks and calculations within this function.
-  See function \code{\link[BiocParallel]{bpparam}()} from the \code{BiocParallel} package.}
+  See function \code{\link[BiocParallel]{register}} from the \code{BiocParallel} package.}
 \item{mail}{ if not NULL, it must be a valid email address to use EBI clustalo web service. 
 			Default is to use a local clustalo installation}
 \item{perlCommand}{ a character string containing the path to Perl executable. 

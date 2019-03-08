@@ -68,7 +68,7 @@
 }
 
 showTumorType <- function() {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     all_cancer_studies2 <- unique(
         data.frame(
@@ -101,7 +101,7 @@ showTumorType <- function() {
         # collect the annotations of id provided as gene symbols
         isGeneSymbol <- myUni$Gene_Symbol %in% genes
         Official_gs <- myUni[isGeneSymbol, c("Gene_Symbol", "Entrez")]
-        # collect the annotations of id provided as EntrezID
+        # collect the annotations of id provided as EntrezID
         isEntrez <- as.character(myUni$Entrez) %in% genes
         Official_entrez <- myUni[isEntrez, c("Gene_Symbol", "Entrez")]
         # merge the two annotations
@@ -125,7 +125,7 @@ showTumorType <- function() {
         # collect the annotations of id provided as gene symbols
         isGeneSymbol <- myUni$Gene_Symbol %in% genes
         Official_gs <- myUni[isGeneSymbol, c("Gene_Symbol", "Entrez")]
-        # collect the annotations of id provided as EntrezID
+        # collect the annotations of id provided as EntrezID
         isEntrez <- as.character(myUni$Entrez) %in% genes
         Official_entrez <- myUni[isEntrez, c("Gene_Symbol", "Entrez") ]
         # merge the two annotations
@@ -249,7 +249,7 @@ showTumorType <- function() {
 
 .clustalOAlign <- function(genesData, clustal_cmd, filename , mail , perlCommand, use_hmm, datum){
     # # get the protein sequences corresponding to the selected genes
-    # # from the uniprot_file
+    # # from the uniprot_file
     # arrange the protein sequences to make a fasta format file
     fasta <- c()
     seq_names <- rownames(genesData)
@@ -460,7 +460,7 @@ showTumorType <- function() {
             alignment$SCORE <- "It is not possible to calculate distance matrix with less than 3 sequences"
         }        
     }
-    ## CLUSTAL element
+    ## CLUSTAL element
     ix <- sort(unlist(lapply(genes, grep, x=alignment$CLUSTAL@unmasked@ranges@NAMES)))
     alignment$CLUSTAL <- 
         as(apply(as.matrix(alignment$CLUSTAL)[ix,,drop=FALSE],1,paste,collapse=''), "AAMultipleAlignment")
@@ -533,7 +533,7 @@ showTumorType <- function() {
                             ,tumor_type="all_tumors"
                             )
 {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     mutation_type <- mutation_type[1]
         # If I want just silent mutation, this overwrite NoSilent mode
@@ -849,7 +849,7 @@ showTumorType <- function() {
         mean <- unif[[3]]-unif[[1]]
         var <- unif[[2]]^2
         ## check: if variance is 0, put the
-        ## profile pvalue to zero
+        ## profile pvalue to zero
         if( var==0 ) {
             pval <- 1
         } else {
@@ -954,7 +954,7 @@ showTumorType <- function() {
     if( is.null(weights) ) weights <- rep(1/geneLen , geneLen)
     nMut <- sum(mat)
     if( bw==0 ) {
-        # to prevent having center and variability 
+        # to prevent having center and variability 
         # that both equals 0
         center <- mean
         variability <- sd
@@ -968,7 +968,7 @@ showTumorType <- function() {
         .profileDensity(profile, bw=bw)
         })
     nullDensities <- sapply(boots, '[[', 'y')
-    # calulate parameters for the gamma distribution
+    # calulate parameters for the gamma distribution
     mu <- apply(nullDensities, 1, center)
     s <- apply(nullDensities, 1, variability)
     s2 <- s^2

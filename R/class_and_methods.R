@@ -85,7 +85,7 @@ setMethod('parallelize', 'LowMACA', function(object) {
 	return(object@arguments$parallelize)
 	})
 
-# setters
+# setters
 setGeneric('lmParams<-', function(object, value) standardGeneric('lmParams<-'))
 setReplaceMethod('lmParams', 'LowMACA', function(object, value) {
 	object@arguments$params <- value
@@ -147,10 +147,10 @@ newLowMACA <- function(genes=NULL, pfam=NULL)
             , sep="|")
 		rownames(genesData) <- seq_names
 	} else {
-	## mode == 'pfam'
+	## mode == 'pfam'
 		# load annotation files
 	    myPfam <- getMyPfam()
-	    # select rows and colums to match the input
+	    # select rows and colums to match the input
 	    selectedColumns <- c('Gene_Symbol', 'Pfam_ID', 'Entrez'
 	    	, 'Envelope_Start', 'Envelope_End', 'UNIPROT', 'Pfam_Fasta')
 	    selectedRows <- myPfam$Pfam_ID %in% pfam
@@ -383,7 +383,7 @@ setMethod('entropy', 'LowMACA', function(object, bw=NULL , conservation=.1) {
 	}
 	mut_extended <- object@mutations$aligned
 	alignment    <- object@alignment
-	# Uniform variable
+	# Uniform variable
 	message("Making uniform model...")
 	if( is.null(bw) ) bw <- object@arguments$params$density_bw else 
 		object@arguments$params$density_bw <- bw
@@ -640,7 +640,7 @@ setMethod('nullProfile', 'LowMACA', function(object, conservation=NULL , windowl
 	    	object@alignment$df$profile*1.1
 	    	), na.rm=TRUE)
 
-	    # red bars of the resudues over the threshold
+	    # red bars of the resudues over the threshold
 
 	    # plot(profile, main='', type='h'
 	    #     , ylim=ylim, bty='n',xaxt='n',xlab='', col='orange', lwd=10)
@@ -893,7 +893,7 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 # 	    over <- profile > upperThreshold
 # 	    ylim <- range(c(profile, upperThreshold, lowerThreshold, qvalSignif_y), na.rm=TRUE)
 
-# 	    # red bars of the resudues over the threshold
+# 	    # red bars of the resudues over the threshold
 # 	    plot(profile, main='', type='h'
 # 	        , ylim=ylim, bty='n',xaxt='n',xlab='', col='orange', lwd=2)
 # 	    # black bars of the other resudues and of residues over, but only

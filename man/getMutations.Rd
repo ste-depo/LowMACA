@@ -17,7 +17,7 @@ getMutations(object, repos = NULL)
                 in the LowMACA object in case of custom mutation data. Default NULL}
 }
 \details{
-With \code{repos=NULL}, the method is a wrapper around \code{\link[cgdsr]{getMutationData}} 
+With \code{repos=NULL}, the method is a wrapper around \code{\link[cgdsr]{cgdsr-getMutationData}} 
 method from package \code{\link[cgdsr]{cgdsr-package}}. The output of the method is moduled 
 by the parameters in \code{lmParams("LowMACA_object")}. See \code{\link{lmParams}} for further information.
 }
@@ -29,7 +29,7 @@ See \code{\link{lmMutations}} method.
 Stefano de Pretis , Giorgio Melloni
 }
 \seealso{
-\code{\link{lmParams}} \code{\link[cgdsr]{getMutationData}} \code{\link{lmMutations}}
+\code{\link{lmParams}} \code{\link[cgdsr]{cgdsr-getMutationData}} \code{\link{lmMutations}}
 }
 \examples{
 #Create an object of class LowMACA
