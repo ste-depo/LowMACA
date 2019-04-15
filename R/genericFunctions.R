@@ -1,3 +1,5 @@
+## for motifStack package
+.globals <- new.env(parent = emptyenv())
 
 #######
 #### functions hidden to the user

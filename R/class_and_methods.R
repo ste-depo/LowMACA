@@ -786,12 +786,16 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 					, col='darkgoldenrod1', ylab='Conservation', ylim=c(0,1))
 				axis(1, at=mp, labels=windowlimits, las=2)
 				## plot 4
+				plot.new()
+				vps <- baseViewports()
+				pushViewport(vps$inner, vps$figure, vps$plot)
 				plotMotifLogo(motif, p=motif@background
 					, colset=motif@color[rownames(motif@mat)]
-					, ylab='Logo', xaxis=FALSE
+					, ylab='Logo', xaxis=FALSE, newpage=FALSE
 					)
 				axis(1,at=1/length(windowlimits)*(seq_along(windowlimits)-.5)
 					, labels=windowlimits,las=2)
+				popViewport(3)
 				#plot(motif, ylab='Logo')
 				# plot.new()
 			}
