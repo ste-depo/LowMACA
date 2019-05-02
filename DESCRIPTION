@@ -1,7 +1,7 @@
 Package: LowMACA
 Type: Package
 Title: LowMACA - Low frequency Mutation Analysis via Consensus Alignment
-Version: 1.13.3
+Version: 1.14.0
 Date: 2015-04-29
 Author: Stefano de Pretis , Giorgio Melloni
 Maintainer: Stefano de Pretis <ste.depo@gmail.com>, Giorgio Melloni <melloni.giorgio@gmail.com>
