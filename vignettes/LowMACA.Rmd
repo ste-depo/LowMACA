@@ -292,12 +292,13 @@ This four layer plot encompasses:
 ## Protter plot
 
 ```{r , protterChunk, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-#This plot is saved as a png image
-protter(lm , filename="homeobox.png")
+#This plot is saved as a png image on a temporary file
+tmp <- tempfile(pattern = "homeobox_protter" , fileext = ".png")
+protter(lm , filename=tmp)
 ```
 
 ```{r, out.width = "400px" , echo=FALSE , eval=TRUE}
-knitr::include_graphics("homeobox.png")
+knitr::include_graphics(tmp)
 ```
 
 A request to the Protter server is sent and a png file is downloaded with the possible sequence structure of the protein and the significant positions colored in orange and red

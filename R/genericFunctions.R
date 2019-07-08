@@ -116,7 +116,7 @@ showTumorType <- function() {
             warning("Either there were duplicated Gene Symbols or Entrez IDs 
                 or you put a Gene Symbol along with its Entrez ID:"
               , immediate.=TRUE)
-            print(Official[duplicated(Official$Entrez), ])
+            message(Official[duplicated(Official$Entrez), ])
         }
         # remove duplicated items, drop the factors' levels 
         # and return
@@ -149,13 +149,13 @@ showTumorType <- function() {
             if( all(sapply(notOfficial, nrow)==1)) {
                 out <- do.call("rbind", notOfficial)
                 message("These Genes were reverted to their official Gene Symbol:")
-                print(out)
+                message(out)
                 out <- rbind(Official, out)
                 if( any( duplicated(out$Entrez) ) ) {
                     warning("There were duplicated Gene Symbols or Entrez IDs 
                         or you put a Gene Symbol along with its Entrez ID:"
                       , immediate.=TRUE)
-                    print(out[duplicated(out$Entrez), ])
+                    message(out[duplicated(out$Entrez), ])
                 }
                 out <- unique(out[, c("Gene_Symbol", "Entrez")])
                 out <- droplevels(out)
@@ -165,7 +165,7 @@ showTumorType <- function() {
                 message("There is an ambiguity with some aliases:")
                 bad_alias_2 <- sapply(notOfficial, length)!=1
                 bad_alias_3 <- do.call("rbind", notOfficial[bad_alias_2])
-                print( bad_alias_3 )
+                message( bad_alias_3 )
                 message("Choose a correct Gene Symbol and start over :(")
                 return( bad_alias_3 )
             }
@@ -175,7 +175,7 @@ showTumorType <- function() {
             if( any(wrongGenes) ) {
                 wrongGenes <- bad_alias[wrongGenes]
                 message("There are invalid Gene Symbol or Entrez IDs:")
-                print(wrongGenes)
+                message(wrongGenes)
                 stop("Check manually and start over :(")                
             }
             unmappedGenes <- ( bad_alias %in% c(myAliasUnmapped$Official_Gene_Symbol ,
@@ -183,7 +183,7 @@ showTumorType <- function() {
             if( any(unmappedGenes) ) {
                 unmappedGenes <- bad_alias[unmappedGenes]
                 message("There are valid genes that have not been mapped by LowMACA:")
-                print(unmappedGenes)
+                message(unmappedGenes)
                 stop("We are sorry, remove these genes and start over :(")
             }
         }
@@ -205,7 +205,7 @@ showTumorType <- function() {
             ### force negative elements on the diagonal to be 0
             if(any(diag(myBLOSUM)<0)) {
                 message('There are some negative elements in the diagonal elements of consensus matrix')
-                print(diag(myBLOSUM)[diag(myBLOSUM)<0])
+                message(diag(myBLOSUM)[diag(myBLOSUM)<0])
                 message('Forcing them to be zero')
                 diag(myBLOSUM)[diag(myBLOSUM)<0] <- 0
             }
@@ -522,7 +522,7 @@ showTumorType <- function() {
     if( any(summary$MAX_SIMILARITY <= 20)) {
         warning("There are sequences very dissimilar to the others! 
             Consider to exclude them because the maximum similarity with any other sequence is less than 20%" , immediate.=TRUE)
-        print(summary[ summary$MAX_SIMILARITY <= 20 , ])
+        message(summary[ summary$MAX_SIMILARITY <= 20 , ])
     }
     return(list(DIST_MAT=dist_seq , SUMMARY_SCORE=summary))
 }
@@ -543,9 +543,11 @@ showTumorType <- function() {
     if(tumor_type[1]=="all_tumors") {
         chosenTumors <- all_cancer_studies[,1]
     } else {
-        chosenTumors <- all_cancer_studies[grepl( paste(tumor_type , collapse="|") , all_cancer_studies[,1] , ignore.case=TRUE) , 1]
+        chosenTumors <- all_cancer_studies[
+          grepl( paste(tumor_type , collapse="|") 
+                , all_cancer_studies[,1] , ignore.case=TRUE) , 1]
     }
-    ### TEMPORARY FIX!!!
+    ### We don't take data from the most recent pancan atlas
     pancan <- grep("_pan_can_atlas_2018" , all_cancer_studies[,1] , value=TRUE)
     chosenTumors <- setdiff(chosenTumors , pancan)
     if(parallelize) {
@@ -591,14 +593,20 @@ showTumorType <- function() {
         colnames(df) <- caseListColnames
         return(df)
       })
+      toLowCL <- tolower(caseList$case_list_name)
       #find if we have any sequenced tumor
-      sel <- caseList$case_list_name=="Sequenced Tumors"
+      sel <- toLowCL=="sequenced tumors"
       # sometimes 'Sequenced Tumors' is not the name of the case_list_name for mutations
-      # If 'Sequenced Tumors' does not exist, try 'All Tumors'
+      # If 'Sequenced Tumors' does not exist, try 'Samples with mutation data' first and 'All Tumors' next
       if(!any(sel)){
-        sel <- caseList$case_list_name=="All Tumors"
+        sel <- toLowCL=="samples with mutation data" | toLowCL=="samples with mutation data."
       }
       if(!any(sel)){
+        sel <- toLowCL=="all samples"
+      }
+      if(!any(sel)){
+        # print("sel is the problem, line 607")
+        # print(caseList)
         return( list( out=NULL , patients=NULL) )
       }
       caseListID <- caseList[sel, 1]
@@ -610,15 +618,18 @@ showTumorType <- function() {
         , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study"))
       )
       if(!exists("muts")) {
+        # print("mut is the problem, line 619")
         muts <- NULL
         patients <- NULL
       } else {
         if(ncol(muts)!=22) {
+          # print("mut is the problem, line 624")
           muts <- NULL
           patients <- NULL
         } else {
           patientsToSplit <- as.character(caseList[sel, 'case_ids'])
           if(!is.character(patientsToSplit) || length(patientsToSplit)==0){
+            # print("mut is the problem, line 630")
             muts <- NULL
             patients <- NULL
           } else {
@@ -626,7 +637,7 @@ showTumorType <- function() {
           }
         }
       }
-    return( list( out=muts , patients=patients) )
+      return( list( out=muts , patients=patients) )
     })
     if(all(sapply(out_double , function(x) is.null(x$out)))) {
         message("There are no mutations available for the selected tumor types and genes")

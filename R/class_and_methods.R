@@ -190,17 +190,6 @@ newLowMACA <- function(genes=NULL, pfam=NULL)
 }
 
 # methods
-setGeneric('setup', function(object, repos=NULL, clustalo_filename=NULL 
-	, mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE) standardGeneric('setup'))
-setMethod('setup', 'LowMACA', function(object, repos=NULL, clustalo_filename=NULL 
-	, mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE) {
-	object@arguments$params$datum <- datum
-	object <- alignSequences(object, clustalo_filename , mail , perlCommand, use_hmm, datum)
-	object <- getMutations(object, repos=repos)
-	object <- mapMutations(object)
-	return(object)
-	})
-
 setGeneric('alignSequences', function(object, clustalo_filename=NULL 
 	, mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE) standardGeneric('alignSequences'))
 setMethod('alignSequences', 'LowMACA', function(object, clustalo_filename=NULL 
@@ -282,8 +271,12 @@ setMethod('getMutations', 'LowMACA', function(object, repos=NULL) {
 setGeneric('mapMutations', function(object) standardGeneric('mapMutations'))
 setMethod('mapMutations', 'LowMACA', function(object) {
 	mut <- object@mutations$data
-	if( nrow(mut)==0 )
-		return(object)
+	if( is.null(mut) ){
+	  stop("mutations slot is empty. Launch the method getMutations first!")
+	}
+	if( nrow(mut)==0 ){
+	  stop("mutations slot is empty. Launch the method getMutations first!")
+	}
 	alignment <- object@alignment$ALIGNMENT
 	alignmentLength <- max(alignment$Align)
 	# # elaborate the mutations and map them with the alignment
@@ -327,43 +320,20 @@ setMethod('mapMutations', 'LowMACA', function(object) {
 	}
 	mut_aligned.extended <- mut_aligned.extended[tokeep, , drop=FALSE]
 	object@mutations$aligned <- mut_aligned.extended
-
-	## add to the alignment data frame the frquency between the 
-	## number of mutations that are feasible to come from a misalignment
-	## of reads coming from another domain taken into consideration
-	#freq <- sapply(1:ncol(mut_aligned.extended), function(pos) {
-		## alignment data
-	#	selectedRows <- object@alignment$ALIGNMENT$Align == pos
-	#	alnData <- object@alignment$ALIGNMENT[selectedRows, ]
-	#	selectedColumns <- c('Gene_Symbol','Ref','Align')
-	#	alnData <- alnData[!is.na(alnData$Ref), selectedColumns]
-	#	colnames(alnData) <- c('Gene_Symbol', 'Amino_Acid_Position'
-	#		, 'Consensus_Position')
-	#	selectedColumns <- c('Gene_Symbol', 'Amino_Acid_Position'
-	#		, 'Amino_Acid_Change')
-	#	mutData <- object@mutations$data[, selectedColumns]
-	#	mutData$Amino_Acid_Change <- substr(
-	#		mutData$Amino_Acid_Change
-	#		, nchar(mutData$Amino_Acid_Change)
-	#		, nchar(mutData$Amino_Acid_Change)
-	#		)
-	#	colnames(mutData) <- c('Gene_Symbol', 'Amino_Acid_Position'
-	#		, 'Mutation_letter')
-	#	mergedData <- merge(mutData, alnData)
-	#	## amino acids from mutated proteins
-	#	mutAA <- table(mergedData$Mutation_letter)
-	#	## amino acids in the alignment
-	#	consensusAA <- object@alignment$df$consensus[pos]
-	#	## frequency
-	#	f <- sum(mutAA[names(mutAA)%in%consensusAA])/sum(mutAA)
-	#	return(f)
-	#	})
-	#object@alignment$df$misalnFreq <- freq
-	# update the object
 	return(object)
 
 	})
 
+setGeneric('setup', function(object, repos=NULL, clustalo_filename=NULL 
+  , mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE) standardGeneric('setup'))
+setMethod('setup', 'LowMACA', function(object, repos=NULL, clustalo_filename=NULL 
+  , mail=NULL , perlCommand="perl", use_hmm=FALSE, datum=FALSE) {
+  object@arguments$params$datum <- datum
+  object <- alignSequences(object, clustalo_filename , mail , perlCommand, use_hmm, datum)
+  object <- getMutations(object, repos=repos)
+  object <- mapMutations(object)
+  return(object)
+})
 
 setGeneric('entropy', function(object, bw=NULL , conservation=0.1) standardGeneric('entropy'))
 setMethod('entropy', 'LowMACA', function(object, bw=NULL , conservation=.1) {
@@ -1088,6 +1058,8 @@ setGeneric('protter', function(object, filename='protter.png', threshold=5e-2 , 
 setMethod('protter', 'LowMACA', function(object, filename='protter.png', threshold=5e-2 , conservation=NULL) {
 	if(is.null(conservation))
 		conservation <- object@entropy$conservation_thr
+	if(is.null(conservation))
+	  stop("No conservation threshold found. Call entropy method or provide one")
 	pvalue <- object@alignment$df$pvalue
 	#qvalue <- object@alignment$df$qvalue
 	if( conservation != object@entropy$conservation_thr ) {
