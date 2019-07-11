@@ -1,4 +1,7 @@
-### Version 1.13.4
+### Version 1.15.2
+Rebump
+
+### Version 1.15.1
 ADDITIONAL FUNCTIONS:
 - Protter is still part of the package but the server is returning error often
 ***
@@ -6,7 +9,6 @@ BUG FIXES:
 - Bug fix on mutation retrieval
 - Various aestetics adjustments to the code
 - Better error handling of getMutations, entropy and protter
-
 
 ### Version 1.13.0
 ADDITIONAL FUNCTIONS:
