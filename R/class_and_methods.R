@@ -30,7 +30,8 @@ setClass('LowMACA',
 		)
 	,validity=function(object) {
 	    object@arguments$params
-	    if( class(object@arguments$params) != "list" )
+	    # if( class(object@arguments$params) != "list" )
+	    if( !is(object@arguments$params , "list") )
 	        return("Parameter value should be a list")
 	    if( length(object@arguments$params) != 7 )
 	        return("Parameter value should be a list of length 7")
@@ -45,14 +46,16 @@ setClass('LowMACA',
 	        c('missense', 'all', 'truncating', 'silent'))
 	        return("mutation_type should be one of the following:
 	            missense, all, truncating, silent")
-	    if( class(object@arguments$params$tumor_type) != 'character' )
+	    # if( class(object@arguments$params$tumor_type) != 'character' )
+	    if(!is(object@arguments$params$tumor_type , "character"))
 	        return('tumor_type must be a character')
 	    if( !is.numeric(object@arguments$params$min_mutation_number) )
 	        return('min_mutation_number must be an integer')
 	    if( !is.numeric(object@arguments$params$density_bw) 
 	    	& object@arguments$params$density_bw != 'auto' )
 	        return('density_bw must be a number or "auto"')
-	    if( class(object@arguments$params$clustal_cmd) != 'character' )
+	    # if( class(object@arguments$params$clustal_cmd) != 'character' )
+	  if(!is(object@arguments$params$clustal_cmd , "character"))
 	        return('clustal_cmd must be a character')
     	TRUE
 		}
@@ -179,7 +182,7 @@ newLowMACA <- function(genes=NULL, pfam=NULL)
 	genesData[, 'Pfam_ID'] <- factor(genesData[, 'Pfam_ID'])
 	genesData[, 'Entrez'] <- factor(genesData[, 'Entrez'])
 	genesData[, 'UNIPROT'] <- factor(genesData[, 'UNIPROT'])
-	## convert non-canonical amnio acids into their
+	## convert non-canonical amino acids into their
 	## most similar and canonical one
 	##		U (selenocysteine) -> A (alanine)
 	genesData$AMINO_SEQ <- gsub('U','A', genesData$AMINO_SEQ)
@@ -761,7 +764,7 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 				pushViewport(vps$inner, vps$figure, vps$plot)
 				plotMotifLogo(motif, p=motif@background
 					, colset=motif@color[rownames(motif@mat)]
-					, ylab='Logo', xaxis=FALSE, newpage=FALSE
+					, ylab='', xlab = '' , xaxis=FALSE, yaxis = FALSE , newpage=FALSE
 					)
 				axis(1,at=1/length(windowlimits)*(seq_along(windowlimits)-.5)
 					, labels=windowlimits,las=2)
@@ -835,178 +838,6 @@ setMethod('lmPlot', 'LowMACA', function(object, conservation=NULL , splitLen=NUL
 	}
 
 	})
-
-
-# setGeneric('nullProfile', function(object , conservation=NULL) standardGeneric('nullProfile'))
-# setMethod('nullProfile', 'LowMACA', function(object , conservation=NULL) {
-
-# 	if( nrow(object@mutations$data)==0 ) {
-# 		message('No mutations available for this object.')
-# 	} else {
-# 		if(is.null(conservation))
-# 			conservation <- object@entropy$conservation_thr
-# 		mean <- object@alignment$df$mean
-# 		lowerThreshold <- object@alignment$df$lTsh
-# 		upperThreshold <- object@alignment$df$uTsh
-# 		profile <- object@alignment$df$profile
-# 		pvalue <- object@alignment$df$pvalue
-# 		if( conservation != object@entropy$conservation_thr ) {
-# 			## in case a new conservation threshold is given,
-# 			## recalculate the qvalue
-# 			filteredPvals <- object@alignment$df$pvalue
-# 			filteredPvals[object@alignment$df$conservation < conservation] <- NA
-# 			qvalue <- p.adjust(filteredPvals, method='BH')
-# 		} else {
-# 			## use qvalue already stored
-# 			qvalue <- object@alignment$df$qvalue
-# 		}
-# 		#misalnFreq <- object@alignment$df$misalnFreq
-
-# 	    qvalSignif_x <- which(qvalue < 5e-2)
-# 	    qvalSignif_y <- profile[qvalSignif_x] + max(profile)/20
-# 	    over <- profile > upperThreshold
-# 	    ylim <- range(c(profile, upperThreshold, lowerThreshold, qvalSignif_y), na.rm=TRUE)
-
-# 	    # red bars of the resudues over the threshold
-# 	    plot(profile, main='', type='h'
-# 	        , ylim=ylim, bty='n',xaxt='n',xlab='', col='orange', lwd=2)
-# 	    # black bars of the other resudues and of residues over, but only
-# 	    # the part below the threshold
-# 	    blackProfile <- sapply(1:length(profile), 
-# 	    	function(i) min(profile[i], upperThreshold[i]))
-# 	    lines(blackProfile, col='black', lwd=2, type='h')
-# 	    lines(upperThreshold, lty=2, lwd=2, col='blue')
-# 	    ### plot an asterisk above the residues which are significant in 
-# 	    # terms of the pvalue
-# 	    if( length(qvalSignif_x) > 0 ) {
-# 	    	text(qvalSignif_x, qvalSignif_y, '*', cex=2, col='red')
-# 	    	## if more than 70% of mutations can be mapped on
-# 	    	## another protein of the domain, plot the BLUE ASTERISK
-# 	    	## instead of RED
-# 	    	#misaligned <- misalnFreq[qvalSignif_x] > .7
-# 	    	# if(any(misaligned)) {
-# 	    	# 	text(qvalSignif_x[misaligned], qvalSignif_y[misaligned]
-# 	    	# 		, '*', cex=2, col='blue')
-# 	    	# 	legend('topright', pch='*', col='blue', legend='possibly misaligned', cex=2)
-# 	    	# }
-# 	    }
-# 	}
-# 	})
-
-# setGeneric('lmPlot', function(object , conservation=NULL) standardGeneric('lmPlot'))
-# setMethod('lmPlot', 'LowMACA', function(object , conservation=NULL) {
-# 	if( nrow(object@mutations$data)==0 ) {
-# 		message('No mutations available for this object.')
-# 	} else {
-# 		if(is.null(conservation))
-# 			conservation <-- object@entropy$conservation_thr
-# 		mode <- object@arguments$mode
-# 		nObj <- nrow(object@arguments$input)
-
-# 		origMAlign <- object@alignment$CLUSTAL
-# 		m <- consensusMatrix(origMAlign)
-# 		motif <- pcm2pfm(m)
-# 		motif <- new('pfm', mat=motif, name='', color=colorset(alphabet='AA'))
-# 		motif@color <- c("-"="#FFFFFF" , motif@color)
-# 		log10pval <- object@entropy$log10pval
-# 		pvalue <- object@entropy$pvalue
-
-# 		par(mar=c(2,4,2,2))
-# 		if( nObj > 1 ) {
-# 			layoutMatrix <- as.matrix(c(1,1,2,2,3,4,4))
-# 			plotType <- 4
-# 		} else if( mode == 'genes' ) {
-# 			layoutMatrix <- as.matrix(c(1,1,1,1,3,2,2,2,2))
-# 			plotType <- 3
-# 		} else {
-# 			layoutMatrix <- as.matrix(c(1,1,2,2))
-# 			plotType <- 2
-# 		}
-# 		layout(layoutMatrix)
-
-# 		## plot 1
-# 		if( plotType == 3) par(mar=c(0,4,2,2))
-# 		myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
-# 		lenAln <- ncol(object@mutations$aligned)
-# 		mut_aligned <- object@mutations$aligned
-# 		# if( plotType == 3 ) colnames(mut_aligned) <- 1:length(mut_aligned)
-# 		barplot(
-# 			mut_aligned
-# 			, col=myPalette(nrow(object@mutations$aligned))
-# 			, border=if(lenAln<300) 'black' else NA
-# 			, main=paste( "Mutations by position\nLog10 P-Value:" , round(log10pval , 2) , 
-# 					"P-Value:" , signif( pvalue , 2 ) , "Bw:" , signif(object@entropy$bw,3) ) 
-# 			, ylab='Mutations'
-# 			)
-# 		## plot 2
-# 		if( plotType == 3) par(mar=c(2,4,0,2))
-# 			nullProfile(object , conservation=conservation)
-# 		if( plotType == 3) {
-# 			pSeq <- round(seq(1, nchar(object@arguments$input$AMINO_SEQ), length.out=20))
-# 			axis(1, at=pSeq, labels=pSeq)
-# 		}
-# 		## if there is more than one object also plot 
-# 		## conservation plots	
-# 		if( nObj > 1 ) {
-# 			## plot 3
-# 			barplot(object@alignment$df$conservation
-# 				, col='darkgoldenrod1', ylab='Conservation')
-# 			## plot 4
-# 			plotMotifLogo(motif, ylab='Logo' , colset=motif@color[rownames(motif@mat)] , p=motif@background)
-# 		}
-
-# 		#############
-# 		## in case the analysis is on a single gene 
-# 		## plot its domains
-# 		############### 
-# 		if( plotType == 3 ) {
-
-# 			myPfam <- getMyPfam()
-# 			gene <- as.character(object@arguments$input$Gene_Symbol)
-# 			domains <- myPfam[myPfam$Gene_Symbol==gene
-# 				, c("Envelope_Start" , "Envelope_End" , "Pfam_Name")]
-# 			## create empty plot
-# 			plot.new()
-# 			plot.window(
-# 				xlim=c(1,nchar(object@arguments$input$AMINO_SEQ))
-# 				, ylim=c(0,0.05)
-# 				)
-# 			par(mar=c(0,0,0,0))
-# 			## plot domains
-# 			if(nrow(domains)>0) {
-# 				for (i in 1:nrow(domains)) {
-# 					xleft=as.numeric(domains[i , "Envelope_Start"])
-# 					xright=as.numeric(domains[i , "Envelope_End"])
-# 					ytop=0.05
-# 					ybottom=0
-# 					col=topo.colors(nrow(domains) , alpha=0.5)[i]
-# 					characters <- nchar(domains[i , "Pfam_Name"])
-# 					rect(xleft=xleft , xright=xright 
-# 						, ytop=ytop , ybottom=ybottom 
-# 						, col=col )
-# 					if(characters<=3){
-# 						text(x=(xright+xleft)/2 , y=0.025 
-# 							, domains[i , "Pfam_Name"] 
-# 							, font=2)
-# 					} else {
-# 						if((xright-xleft)<=100){
-# 							text(x=(xright+xleft)/2 , y=0.025 
-# 								, domains[i , "Pfam_Name"] 
-# 								, font=2 , cex=0.8)
-# 						} else {
-# 							text(x=(xright+xleft)/2 , y=0.025 
-# 								, domains[i , "Pfam_Name"] 
-# 								, font=2)
-# 						}
-# 					}
-# 				}
-# 			} else {
-# 				text(x=nchar(object@arguments$input$AMINO_SEQ)/2, y=0.025
-# 					, 'no pfam domains within gene sequence', cex=1.5)
-# 			}
-# 		}
-# 	}
-# 	})
 
 #Plot a Single specified sequence from a multiple alignment LowMACA object
 setGeneric('lmPlotSingleSequence', function(object , gene , mail=NULL , perlCommand="perl") standardGeneric('lmPlotSingleSequence'))

@@ -70,12 +70,18 @@
 }
 
 showTumorType <- function() {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+    # mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
+    # all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+    mycgds <- cBioPortalData::cBioPortal(
+      hostname = "www.cbioportal.org",
+      protocol = "https",
+      api. = "/api/api-docs")
+    all_cancer_studies <- cBioPortalData::getStudies(mycgds)
     all_cancer_studies2 <- unique(
         data.frame(
-            Code=sapply(all_cancer_studies$cancer_study_id
-                , function(x) strsplit(x , "_")[[1]][1])
+            # Code=sapply(all_cancer_studies$cancer_study_id
+            #     , function(x) strsplit(x , "_")[[1]][1])
+            Code=all_cancer_studies$cancerTypeId
             , Full_Name=sapply(all_cancer_studies$name
                 , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1]))
                 ))
@@ -535,132 +541,138 @@ showTumorType <- function() {
                             ,tumor_type="all_tumors"
                             )
 {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+    # mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
+    # all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+    mycgds <- cBioPortalData::cBioPortal(
+      hostname = "www.cbioportal.org",
+      protocol = "https",
+      api. = "/api/api-docs")
+    all_cancer_studies <- cBioPortalData::getStudies(mycgds)[ , c("cancerTypeId" , "studyId")]
+    all_cancer_studies <- unique(all_cancer_studies)
+    # all_cancer_studies <- cbind(all_cancer_studies$cancerTypeId , all_cancer_studies)
+    # all_cancer_studies2 <- unique(
+    #   data.frame(
+    #     # Code=sapply(all_cancer_studies$cancer_study_id
+    #     #     , function(x) strsplit(x , "_")[[1]][1])
+    #     Code=all_cancer_studies$cancerTypeId
+    #     , Full_Name=sapply(all_cancer_studies$name
+    #                        , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1]))
+    #   ))
+    # all_cancer_studies3 <- aggregate(Full_Name~Code, all_cancer_studies2
+    #                                  , FUN=function(x) {paste(x , collapse="|")})
     mutation_type <- mutation_type[1]
         # If I want just silent mutation, this overwrite NoSilent mode
     if(mutation_type=="silent") NoSilent=FALSE
     if(tumor_type[1]=="all_tumors") {
-        chosenTumors <- all_cancer_studies[,1]
+        chosenTumors <- all_cancer_studies[,1,drop=TRUE]
     } else {
-        chosenTumors <- all_cancer_studies[
+        chosenTumors <- unlist(all_cancer_studies[
           grepl( paste(tumor_type , collapse="|") 
-                , all_cancer_studies[,1] , ignore.case=TRUE) , 1]
+                , all_cancer_studies[,1,drop=TRUE] , ignore.case=TRUE) , 1])
+        names(chosenTumors) <- all_cancer_studies[
+          grepl( paste(tumor_type , collapse="|") 
+            , all_cancer_studies[,1,drop=TRUE] , ignore.case=TRUE),2,drop=TRUE]
     }
     ### We don't take data from the most recent pancan atlas
-    pancan <- grep("_pan_can_atlas_2018" , all_cancer_studies[,1] , value=TRUE)
-    chosenTumors <- setdiff(chosenTumors , pancan)
+    # pancan <- grep("_pan_can_atlas_2018" , all_cancer_studies[,1,drop=TRUE] , value=TRUE)
+    # chosenTumors <- setdiff(chosenTumors , pancan)
     if(parallelize) {
-        applyfun <- mclapply
-        options('mc.cores'=detectCores())
+      applyfun <- mclapply
+      options('mc.cores'=detectCores())
     } else {
       applyfun <- lapply
     }
-    out_double <- applyfun(chosenTumors , function(i) {
+    out_double <- applyfun(names(chosenTumors) , function(i) {
       #for each Cancer Study, fetch the type of alteration (genetic profile) 
       #to be considered
-      geneticProfile <- tryCatch({
-        cgdsr::getGeneticProfiles(mycgds, i)
-      } , error = function(e) {
-        url <- paste0(mycgds$.url, "webservice.do?cmd=getGeneticProfiles&&cancer_study_id=", i)
-        res <- httr::GET(url)
-        if(res$status_code!=200){
-          stop(paste("Problems with cBioPortal Connection at" , url))
-        }
-        df <- strsplit(unlist(strsplit(httr::content(res) , "\n")) , split="\t")
-        caseListColnames <- df[[1]]
-        df <- do.call("rbind" , df[-1])
-        df <- as.data.frame(df , stringsAsFactors=FALSE)
-        colnames(df) <- caseListColnames
-        return(df)
-      })
-      # geneticProfile <- geneticProfile[ ,c(1:2)]
-      sel <- grepl("mutations$" , geneticProfile$genetic_profile_id)
-      geneticProfile <- geneticProfile[sel, 1]
-      
-      caseList <- tryCatch({
-        cgdsr::getCaseLists(mycgds, i)
-      } , error = function(e) {
-        url <- paste(mycgds$.url, "webservice.do?cmd=getCaseLists&cancer_study_id=", i, sep = "")
-        res <- httr::GET(url)
-        if(res$status_code!=200){
-          stop(paste("Problems with cBioPortal Connection at" , url))
-        }
-        df <- strsplit(unlist(strsplit(httr::content(res) , "\n")) , split="\t")
-        caseListColnames <- df[[1]]
-        df <- do.call("rbind" , df[-1])
-        df <- as.data.frame(df , stringsAsFactors=FALSE)
-        colnames(df) <- caseListColnames
-        return(df)
-      })
-      toLowCL <- tolower(caseList$case_list_name)
-      #find if we have any sequenced tumor
-      sel <- toLowCL=="sequenced tumors"
-      # sometimes 'Sequenced Tumors' is not the name of the case_list_name for mutations
-      # If 'Sequenced Tumors' does not exist, try 'Samples with mutation data' first and 'All Tumors' next
-      if(!any(sel)){
-        sel <- toLowCL=="samples with mutation data" | toLowCL=="samples with mutation data."
-      }
-      if(!any(sel)){
-        sel <- toLowCL=="all samples"
-      }
-      if(!any(sel)){
-        # print("sel is the problem, line 607")
-        # print(caseList)
+      geneticProfile <- cBioPortalData::molecularProfiles(mycgds, i)
+      geneticProfile <- geneticProfile[ grep("MUTATION" , geneticProfile$molecularAlterationType) , ]
+      if(nrow(geneticProfile)==0){
+        message(paste("geneticProfile" , i , "has no mutation data"))
         return( list( out=NULL , patients=NULL) )
       }
-      caseListID <- caseList[sel, 1]
+      # Fetch the patient list for the specified molecular profile and data type (mutations)
+      caseList <- cBioPortalData::sampleLists(mycgds, i)
+      caseList <- caseList[ caseList$category == "all_cases_with_mutation_data" , ]
+      if(nrow(caseList)==0){
+        message(paste("ProfileId" , i , "has no samples with mutations"))
+        return( list( out=NULL , patients=NULL) )
+      }
+      # Get the actual case names (e.g. TCGA-AR-A1AR)
+      caseListId <- cBioPortalData::getSampleInfo(api = mycgds 
+                                                  , studyId = geneticProfile$studyId 
+                                                  , sampleListIds = caseList$sampleListId)$sampleId
       tryCatch(
-        muts <- cgdsr::getMutationData( mycgds 
-        , caseList=caseListID 
-        , geneticProfile=geneticProfile
-        , genes=as.character(myGenes[ , 'Entrez']))
-        , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study"))
+        muts <- cBioPortalData::mutationData(
+          api = mycgds
+          , molecularProfileIds = geneticProfile$molecularProfileId
+          , entrezGeneIds = as.numeric(as.character(myGenes[ , 'Entrez']))
+          , sampleIds = caseListId
+        )[[1]]
+        , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study or no mutations are present on the selected genes"))
       )
       if(!exists("muts")) {
         # print("mut is the problem, line 619")
         muts <- NULL
         patients <- NULL
       } else {
-        if(ncol(muts)!=22) {
-          # print("mut is the problem, line 624")
-          muts <- NULL
-          patients <- NULL
-        } else {
-          patientsToSplit <- as.character(caseList[sel, 'case_ids'])
-          if(!is.character(patientsToSplit) || length(patientsToSplit)==0){
-            # print("mut is the problem, line 630")
-            muts <- NULL
-            patients <- NULL
-          } else {
-            patients <- strsplit(patientsToSplit , split=" ")[[1]]            
-          }
-        }
+        muts <- muts[ , c("patientId"
+                          ,"entrezGeneId"
+                          ,"studyId"
+                          ,"mutationType"
+                          ,"proteinChange")]
+        patients <- muts$patientId
+        # if(ncol(muts)!=22) {
+        #   # print("mut is the problem, line 624")
+        #   muts <- NULL
+        #   patients <- NULL
+        # } else {
+        #   patientsToSplit <- as.character(caseList[sel, 'case_ids'])
+        #   if(!is.character(patientsToSplit) || length(patientsToSplit)==0){
+        #     # print("mut is the problem, line 630")
+        #     muts <- NULL
+        #     patients <- NULL
+        #   } else {
+        #     patients <- strsplit(patientsToSplit , split=" ")[[1]]            
+        #   }
+        # }
       }
       return( list( out=muts , patients=patients) )
     })
+    names(out_double) <- names(chosenTumors)
     if(all(sapply(out_double , function(x) is.null(x$out)))) {
         message("There are no mutations available for the selected tumor types and genes")
         return(list( Mutations=NULL , AbsFreq=NULL ))
     }
-        #These are the number of samples
+        #This is the number of samples
     samples_out <- lapply(1:length(out_double) , function(x) out_double[[x]][["patients"]])
-    names(samples_out) <- chosenTumors
+    names(samples_out) <- names(chosenTumors)
+    shortNames <- sapply(strsplit(names(samples_out) , "_") , '[' , 1)
         #Create a set of samples per tumor type and not per study type (ex. brca_tcga and brca_pub will be joined)
-    chosenTumors_type <- unique(sapply(chosenTumors, function(x) strsplit(x , split="_")[[1]][1]))
-    npat_type <- c()
-    for (i in chosenTumors_type) {
-        selected_tum <- samples_out[grep(i , names(samples_out) , value=TRUE)]
-        selected_pat <- unique(unlist(selected_tum))
-        npat_type <- c(npat_type , length(selected_pat) )
-    }
-    names(npat_type) <- chosenTumors_type  
+    chosenTumors_type <- unique(unname(chosenTumors))
+    npat_type <- sapply(chosenTumors_type , function(k) length(unique(unlist(samples_out[shortNames%in%k]))))
+    # npat_type <- c()
+    # for (i in chosenTumors_type) {
+    #     selected_tum <- samples_out[grep(i , names(samples_out) , value=TRUE)]
+    #     selected_pat <- unique(unlist(selected_tum))
+    #     npat_type <- c(npat_type , length(selected_pat) )
+    # }
+    # names(npat_type) <- chosenTumors_type  
         #Mutation Dataset
     mut <- as.data.frame( 
                 data.table::rbindlist(
                     lapply(1:length(out_double) , function(x) out_double[[x]][["out"]]) 
                     ))
-    mut$Tumor_Type <- sapply(mut$genetic_profile_id , function(x) strsplit(x , split="_")[[1]][1])
+    mut$Tumor_Type <- sapply(strsplit(mut$studyId , "_") , '[' , 1)
+    myGeneTable <- unique(myGenes[ , c("Gene_Symbol" , "Entrez")])
+    myGeneTable$Entrez <- as.numeric(as.character(myGeneTable$Entrez))
+    myGeneTable$Gene_Symbol <- as.character(myGeneTable$Gene_Symbol)
+    mut$gene_symbol <- plyr::mapvalues(mut$entrezGeneId 
+                                       , from = myGeneTable$Entrez
+                                       , to = myGeneTable$Gene_Symbol
+                                       , warn_missing = FALSE)
+    colnames(mut) <- c("case_id" , "entrez_gene_id" , "studyId" , "mutation_type" , "amino_acid_change" , "Tumor_Type" , "gene_symbol")
+    # mut$Tumor_Type <- sapply(mut$genetic_profile_id , function(x) strsplit(x , split="_")[[1]][1])
     goodCols <- c("entrez_gene_id"
                 ,"gene_symbol"
                 ,"case_id"
@@ -669,7 +681,7 @@ showTumorType <- function() {
                 ,"Tumor_Type"
                 )
     mut <- mut[ , goodCols]
-    #Delete all the splice sites outside the coding region (reported as e1-2 or similar notations)
+    # Remove all the splice sites outside the coding region (reported as e1-2 or similar notations)
     mut <- mut[ !grepl("^e" , mut$amino_acid_change) , ]
     mut$letter <- substr(mut$amino_acid_change,1,1)
     mut$position <- as.numeric(as.character(stringr::str_extract(
@@ -684,8 +696,10 @@ showTumorType <- function() {
         , Sample=mut$case_id
         , Tumor_Type=mut$Tumor_Type)
     for (i in colnames(mut)){
-        if(class(mut[,i])=="factor")
+        # if(class(mut[,i])=="factor")
+        if(is(mut[,i] , "factor")){
             mut[,i] <- as.character(mut[,i])
+        }
     }
     #Delete all non-SNVs mutation and all non-TCGA MutationType
     mut <- mut[ !is.na(mut$Mutation_Type) , ]

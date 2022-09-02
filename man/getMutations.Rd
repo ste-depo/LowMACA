@@ -4,7 +4,7 @@
 Retrieve mutation data for a LowMACA object
 }
 \description{
-Exploting the capabilities of the cgdsr package, this method downloads and parse 
+Using the cBioportalData package, this method downloads and parse 
 the mutation data of the specified genes in the selected tumor types. 
 It also aggregates and show the frequencies of mutations of every gene in the different tumor types.
 }
@@ -17,8 +17,8 @@ getMutations(object, repos = NULL)
                 in the LowMACA object in case of custom mutation data. Default NULL}
 }
 \details{
-With \code{repos=NULL}, the method is a wrapper around \code{\link[cgdsr]{cgdsr-getMutationData}} 
-method from package \code{\link[cgdsr]{cgdsr-package}}. The output of the method is moduled 
+With \code{repos=NULL}, the method is a wrapper around \code{\link[cBioportalData]{cBioportalData-mutationData}} 
+method from package \code{\link[cBioportalData]{cBioportalData-package}}. The output of the method is moduled 
 by the parameters in \code{lmParams("LowMACA_object")}. See \code{\link{lmParams}} for further information.
 }
 \value{
@@ -29,7 +29,7 @@ See \code{\link{lmMutations}} method.
 Stefano de Pretis , Giorgio Melloni
 }
 \seealso{
-\code{\link{lmParams}} \code{\link[cgdsr]{cgdsr-getMutationData}} \code{\link{lmMutations}}
+\code{\link{lmParams}} \code{\link[cBioportalData]{cBioportalData-mutationData}} \code{\link{lmMutations}}
 }
 \examples{
 #Create an object of class LowMACA

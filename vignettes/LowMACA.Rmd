@@ -73,7 +73,7 @@ Ghostscript is an interpreter of postscript language and a pdf reader that is us
 - For Linux users, simply download the program from http://ghostscript.com/download/gsdnld.html and compile it
 - For MacOS users there is a dmg installer at http://pages.uoregon.edu/koch/
 - For Windows users, download the program from http://ghostscript.com/download/gsdnld.html and then you have 3 options:
-	- Put C:/Program Files/gs/gs9.05/bin in your PATH once for all (Adjust the path to match your gs installation)
+	- Put C:/Program Files/gs/gs9.05/bin in your PATH once for all (Adjust the path to match your gs installation number)
 	- Run the command Sys.setenv(R\_GSCMD = '"C:/Program Files/gs/gs9.05/bin/gswin32c.exe"') at every new session of R
 	- Put the command showed above in your .Renviron file
 
@@ -87,8 +87,8 @@ http://pgfe.umassmed.edu/BioconductorGallery/docs/motifStack/motifStack.html
 - use the web service of clustalomega (http://www.ebi.ac.uk/Tools/webservices/services/msa/clustalo\_soap)
 
 # Create a LowMACA object
-First of all, we have to define our target genes or pfam domains that we wish to analyse. 
 
+First of all, we have to define our target genes or pfam domains that we wish to analyse. 
 
 ## Find the target family of proteins or pfam
 
@@ -113,15 +113,15 @@ Now we have created a `r Rpackage("LowMACA")` object. In this case, we want to a
 the homeodomain fold pfam (PF00046), considering 28 genes that belong to this clan. 
 If we don't specify the pfam parameter, `r Rpackage("LowMACA")` proceeds to analyse 
 the entire proteins passed by the genes parameter (we map only canonical proteins, one per gene).
-Vice versa, if we don't specify the genes parameter, `r Rpackage("LowMACA")` 
-looks for all the proteins that contain the specified pfam and analyse just the portion of the protein assigned to the domain.
+Conversely, if we don't specify the genes parameter, `r Rpackage("LowMACA")` 
+looks for all the proteins that contain the specified pfam and analyses just the portion of the protein assigned to the domain.
 
 ## Change default parameters
 
 A LowMACA object is composed by four slots. The first slot is *arguments* 
 and is filled at the very creation of the object. It contains information as Uniprot 
 name for the proteins associated to the genes, the amino acid sequences, 
-start and end of the selected domains and the default parameters that can be change to start the analysis.
+start and end of the selected domains and the default parameters that can be changed to start the analysis.
 
 ```{r, echo=TRUE}
 #See default parameters
@@ -149,10 +149,10 @@ lm <- alignSequences(lm)
 ```
 
 This method is basically self explained. It aligns the sequences in the object. 
-If you didn't install clustalomega yet, you can use the web service of clustalomega 
+If you have not installed clustalomega yet, you can use the web service of clustalomega 
 that we wrapped in our R package. 
 The limit is set to 2000 sequences and it is slower than a local installation. 
-Rememeber to put your own email in the mail command 
+Remember to put your own email in the mail command 
 to activate this option since is required by the EBI server.
 
 ```{r , fourthchunkBis, echo=TRUE , eval=TRUE  , message=FALSE , warning=FALSE}
@@ -167,9 +167,8 @@ str(myAlignment , max.level=2 , vec.len=2)
 
 - ALIGNMENT: mapping from original position to the position in the consensus
 - SCORE: some score of distance between the sequences
-- CLUSTAL: an object of class *AAMultipleAlignment* as provided by Biostrings R package
-- df: Consesus sequence and conservation Trident Score at every position
-
+- CLUSTAL: an object of class *AAMultipleAlignment* as provided by the Biostrings R package
+- df: Consensus sequence and conservation Trident Score at every position
 
 ## Get Mutations and Map Mutations
 
@@ -215,7 +214,7 @@ lm <- setup(lm , mail="lowmaca@gmail.com")
 ## Custom Data
 
 If you have your own data and you don't need to rely on the cgdsr package, 
-you can use the getMutations or setup method with the parameter repos, like this:
+you can use getMutations or setup method with the parameter repos, like this:
 
 ```{r , ninthchunk_pre , echo=TRUE , eval=TRUE}
 #Reuse the downloaded data as a toy example
@@ -242,12 +241,13 @@ str(myEntropy)
 head(myAlignment$df)
 ```
 
-With the method entropy, we calculate the entropy score and a pvalue against 
-the null hypothesis that the mutations are distributed randomly accross our consensus protein.
+With the method entropy, we calculate the entropy score and a p-value against 
+the null hypothesis that the mutations are distributed randomly across our consensus protein.
 In addition, a test is performed for every position of the consensus and the 
 output is reported in the slot *alignment*. The position 4 has a conservation 
-score of 0.88 (highly conserved) and the corrected pvalue is significant (qvalue below 0.01).
-There are signs of positive selection for the position 4. To retrieve the original mutations that generated that cluster, we can use the function lfm
+score of 0.88 (highly conserved) and the corrected p-value is significant (q-value below 0.01).
+There are signs of positive selection for the position 4. To retrieve the original mutations 
+that generated that cluster, we can use the function lfm
 
 ```{r , eleventhchunk, echo=TRUE}
 significant_muts <- lfm(lm)
@@ -275,7 +275,6 @@ This barplot shows all the mutations reported on the consensus sequence divided 
 
 ## LowMACA comprehensive Plot
 
-
 ```{r ,  echo=TRUE, eval=TRUE, results="hide"}
 lmPlot(lm)
 ```
@@ -284,8 +283,8 @@ This four layer plot encompasses:
 
 - The bar plot visualize before
 - The distribution of mutations against the null hypothesis 
-		(blue line) with orange bars representing a pvalue below 0.05 for
-		 that position and a red star for qvalue below 0.05
+		(blue line) with orange bars representing a p-value below 0.05 for
+		 that position and a red star for q-value below 0.05
 - The Trident score distribution
 - The logo plot representing the consensus sequence
 
@@ -301,13 +300,18 @@ protter(lm , filename=tmp)
 knitr::include_graphics(tmp)
 ```
 
-A request to the Protter server is sent and a png file is downloaded with the possible sequence structure of the protein and the significant positions colored in orange and red
-
+A request to the Protter server is sent and a png file is downloaded with the possible sequence structure 
+of the protein and the significant positions colored in orange and red
 
 # Data driven workflow
 
-An alternative use of `r Rpackage("LowMACA")` consists in analysing all the Pfams and single sequences encompassed by a specific set of mutations. For example, it is possible to analyse mutations derived from a cohort of patients to see which Pfams and set of mutations are enriched, following the LowMACA statistics. 
-The function *allPfamAnalysis* takes as input a *data.frame* or the name of a file which contains the set of mutations, analyse all the Pfams that are represented and reports all the significant mutations as output. Moreover, the function *allPfamAnalysis* analyses individually all the mutated genes and reports the significant mutations found by this analysis as part of the output.
+An alternative use of `r Rpackage("LowMACA")` consists in analysing all the Pfams and single sequences 
+encompassed by a specific set of mutations. For example, it is possible to analyse mutations 
+derived from a cohort of patients to see which Pfams and set of mutations are enriched, following the LowMACA statistics. 
+The function *allPfamAnalysis* takes as input a *data.frame* or the name of a file which contains the set of mutations, 
+analyse all the Pfams that are represented and reports all the significant mutations as output. 
+Moreover, the function *allPfamAnalysis* analyses individually all the mutated genes and reports 
+the significant mutations found by this analysis as part of the output.
 
 ```{r , allPfamAnalysis, eval=TRUE}
 #Load Homeobox example
@@ -326,7 +330,11 @@ head(significant_muts$SingleSequence)
 unique(significant_muts$SingleSequence$Gene_Symbol)
 ```
 
-The parameter *allLowMACAObjects* can be used to specify the name of the file where all the Pfam analyses will be stored (by default this information is not stored, because the resulting file can be huge, according to the size of the input dataset). In this case, all the analysed Pfams are stored as `r Rpackage("LowMACA")` objects and they can be loaded and analysed with the usual `r Rpackage("LowMACA")` workflow.
+The parameter *allLowMACAObjects* can be used to specify the name of the file where 
+all the Pfam analyses will be stored (by default this information is not stored, 
+because the resulting file can be huge, according to the size of the input dataset). 
+In this case, all the analysed Pfams are stored as `r Rpackage("LowMACA")` objects 
+and they can be loaded and analysed with the usual `r Rpackage("LowMACA")` workflow.
 
 # Summary
 

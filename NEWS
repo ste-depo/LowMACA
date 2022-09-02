@@ -1,3 +1,11 @@
+### Version 1.15.3
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- Switched from cgdsr (deprecated) to cBioportalData
+- Various aestetics adjustments to the code
+- Typos correction
+
 ### Version 1.15.2
 Rebump
 

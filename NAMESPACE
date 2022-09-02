@@ -1,11 +1,12 @@
 import(
     LowMACAAnnotation,
     methods,
-    cgdsr,
+    cBioPortalData,
     parallel,
     RColorBrewer,
     BiocParallel
 )
+importFrom(plyr , mapvalues)
 importFrom(httr , GET)
 importFrom(stringr, str_extract)
 importFrom(reshape2, melt)
