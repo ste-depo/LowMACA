@@ -16,7 +16,7 @@ allPfamAnalysis <- function(repos
 	mutation_type <- mutation_type[1]
 	if(mutation_type=="silent") NoSilent=FALSE
 	#reading the file if it is not a variable
-	if(class(repos)=="character")
+	if(is.character(repos))
 		repos <- read.table(repos , sep="\t" , header=TRUE , as.is=TRUE)
 	#Delete all non-SNVs mutation and all non-TCGA MutationType
     repos <- repos[ !is.na(repos$Mutation_Type) , ]

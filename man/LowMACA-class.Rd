@@ -68,7 +68,7 @@ newLowMACA(genes=character_vector , pfam=character_vector)
   \item{mutations}{
       Object of class \code{"list"} with 3 elements:
       \itemize{
-        \item{data}{ : data.frame derived from a query to the cBioPortal, \code{\link[cBioportalData]{cBioportalData-mutationData}}
+        \item{data}{ : data.frame derived from a query to the cBioPortal, \code{\link[cBioPortalData]{mutationData}}
                             Every row represents a mutation stratified by position, gene and tumor type.}
         \item{freq}{ : data.frame of absolute frequency of mutation stratified by gene and tumor type.}
         \item{aligned}{ : matrix representing the number of mutations at every position in the consensus sequence 
