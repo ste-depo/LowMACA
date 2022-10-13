@@ -1,8 +1,8 @@
 Package: LowMACA
 Type: Package
 Title: LowMACA - Low frequency Mutation Analysis via Consensus Alignment
-Version: 1.27.1
-Date: 2022-09-15
+Version: 1.27.2
+Date: 2022-10-13
 Author: Giorgio Melloni , Stefano de Pretis
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com> , Stefano de Pretis <ste.depo@gmail.com>
 Description: The LowMACA package is a simple suite of tools to investigate and analyze the mutation profile of several proteins or pfam domains via consensus alignment. You can conduct an hypothesis driven exploratory analysis using our package simply providing a set of genes or pfam domains of your interest.
