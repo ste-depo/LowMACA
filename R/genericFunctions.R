@@ -273,7 +273,9 @@ showTumorType <- function() {
         hmmFile <- tempfile()
         # e.g. http://pfam.xfam.org/family/PF00071/hmm
         pfam <- as.character(genesData$Pfam_ID[1])
-        WebQuery <- paste0('http://pfam.xfam.org/family/', pfam, '/hmm')
+        # WebQuery <- paste0('http://pfam.xfam.org/family/', pfam, '/hmm')
+        WebQuery <- paste0('http://pfam-legacy.xfam.org/family/', pfam, '/hmm')
+        # https://www.ebi.ac.uk/interpro/entry/pfam/PF00071
         if(Sys.info()['sysname']=="Windows")
             download.file(WebQuery, destfile=hmmFile , mode="wb")
         else
